@@ -1,5 +1,5 @@
 import psycopg2
-DEBUG = False
+DEBUG = False #test
 admin_user = "db_admin"
 admin_pwd = "db_admin"
 db_name = "csc_db"
