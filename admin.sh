@@ -1,9 +1,15 @@
 #!/bin/bash
+
+# number of clients
+CLI_NUM=4
+
 admin_pwd="admin"
 
 #folders
+main_folder="output"
 admin="admin"
 server="server"
+client="client"
 
 #certificates and keys
 cert_auth_key="my-ca.key"
@@ -13,9 +19,22 @@ server_pem="csc-server.pem"
 server_csr="csc-server.csr"
 server_crt="csc-server.crt"
 
+#creating and entering main folder
+mkdir $main_folder
+cd $main_folder
+
 #creating folders
 mkdir $admin
 mkdir $server
+mkdir $client
+
+#creating client folders
+cd $client
+for ((i=0 ; i <= CLI_NUM; i++))
+do
+    mkdir "$client$i"
+done
+cd ..
 
 #creation of a certificate authority
 cd $admin

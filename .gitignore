@@ -1,7 +1,2 @@
-#ignore everything
-*
-
-#but not these files
-!.gitignore
-!server.py
-!admin.sh
+#ignore 
+output/
