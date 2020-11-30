@@ -28,7 +28,7 @@ mkdir $admin
 mkdir $server
 mkdir $client
 
-#creating client folders
+#creating specific client folders
 cd $client
 for ((i=0 ; i <= CLI_NUM; i++))
 do
