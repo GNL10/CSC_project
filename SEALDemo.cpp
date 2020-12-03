@@ -26,10 +26,19 @@ int main() {
 	Encryptor encryptor(context, public_key);
     Evaluator evaluator(context);
     Decryptor decryptor(context, secret_key);
+    BatchEncoder batch_encoder(context);
+
 
 	// This x is the value that is going to be encrypted
-	int x = 6;
+	int x = 1234567;
     Plaintext x_plain(to_string(x));
+    
+    /*
+    Plaintext plain_matrix;
+    print_line(__LINE__);
+    cout << "Encode plaintext matrix:" << endl;
+    batch_encoder.encode(pod_matrix, plain_matrix);
+    */
     cout << "Express x = " + to_string(x) + " as a plaintext polynomial 0x" + x_plain.to_string() + "." << endl;
 
 	Ciphertext x_encrypted;
@@ -56,6 +65,15 @@ int main() {
 	Plaintext x_decrypted;
     cout << "    + decryption of x_encrypted: ";
     decryptor.decrypt(input, x_decrypted);
+
+    /*
+    Plaintext plain_result;
+    print_line(__LINE__);
+    cout << "Decrypt and decode result." << endl;
+    decryptor.decrypt(encrypted_matrix, plain_result);
+    batch_encoder.decode(plain_result, pod_result);
+    */
+
     cout << "0x" << x_decrypted.to_string() << " ...... Correct." << endl;
 
 	cout << "Decrypted value : " << x_decrypted.to_string() << endl;
