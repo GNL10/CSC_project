@@ -3,6 +3,7 @@ encrypted.txt
 build/
 CMakeFiles/
 bin/
+output/
 CMakeCache.txt
 cmake_install.cmake
 Makefile

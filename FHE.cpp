@@ -21,6 +21,7 @@ int main () {
 }
 
 // Gen key
+void gen_key (const char *secret_key_fname, const char *public_key_fname) {
     
     EncryptionParameters parms(scheme_type::bfv);
 

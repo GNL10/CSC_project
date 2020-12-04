@@ -33,6 +33,8 @@ int main() {
 	int x = 1234567;
     Plaintext x_plain(to_string(x));
     
+    IntegerEncoder encoder(context);
+    
     /*
     Plaintext plain_matrix;
     print_line(__LINE__);
