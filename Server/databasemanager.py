@@ -4,7 +4,21 @@ class DataBaseManager:
         print("database working...")
     
     @staticmethod
-    def create(command):
-        print(command)
+    def CREATE(command):
+        print("create")
+    
+    @staticmethod
+    def INSERT(command):
+        print("insert")
+    
+    @staticmethod
+    def DELETE(command):
+        print("delete")
+    
+    @staticmethod
+    def SELECT(command):
+        print("select")
+
+    
 
 

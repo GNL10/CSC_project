@@ -10,8 +10,8 @@ class Security:
         print("is secured!!")
 
     @staticmethod
-    def pipelineSecurity(secured_command):
-        print("pipelined...")
+    def pipelineRSASecurity(secured_command):
+        print("secure cmd pipelined...")
 
         # first: pipeline to RSA security proccess
         # bla bla blade

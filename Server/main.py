@@ -7,4 +7,4 @@ server = Server()
 
 server.searchClients()
 
-print(server.proccessCommand(0))
+server.respondToClient(0, "lsdjdlfkjsd")

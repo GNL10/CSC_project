@@ -1,3 +1,4 @@
 {
-    "client-command-file": "command.txt"
+    "client-command-file": "command.txt",
+    "client-response-file": "response.txt"
 }
