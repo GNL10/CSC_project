@@ -2,7 +2,6 @@ import sys
 sys.path.append(".")
 from admin import Admin
 
-admin = Admin()
+admin = Admin(n_clients=10)
 
-print(admin.clients)
 
