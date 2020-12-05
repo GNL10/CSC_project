@@ -30,7 +30,7 @@ int main() {
 
 
 	// This x is the value that is going to be encrypted
-	int x = 120;
+	int x = 500;
     Plaintext x_plain(to_string(x));
     
     //IntegerEncoder encoder(context);

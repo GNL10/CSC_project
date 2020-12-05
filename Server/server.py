@@ -1,3 +1,4 @@
+from Server.process_command import process_command
 import os
 import json
 import sys
@@ -54,6 +55,7 @@ class Server:
             
             try:
                 db_manager_method = getattr(DataBaseManager, command["db_cmd"])
+                res = process_command("command", "client")
             except AttributeError:
                 raise NotImplementedError("lol, claramente que tentaste chamar um metodo nao definido smh")
             db_manager_method(command)

@@ -97,7 +97,7 @@ class Table:
             if (t.name == table_name):
                 return t
         raise Exception("Table " + table_name + " not found!")
-                
+
 
         
 database = []
@@ -195,7 +195,7 @@ def analyse_conditions (conditions_raw):
     return res, op_code
 
 
-
+"""
 process_command("CREATE TABLE tablename (1stcol int, 2ndcol int, 3rdcol text, 4thcol int)")
 process_command("INSERT INTO tablename VALUES (1, 1asd, 2, 4)")
 process_command("INSERT INTO tablename VALUES (3, kgmw, 1, 12)")
@@ -208,3 +208,4 @@ process_command("INSERT INTO tablename VALUES (1, kmw, 2, 12)")
 Table.get_table("tablename").print()
 res = process_command("SELECT 1stcol, 2ndcol, 3rdcol FROM tablename WHERE 1stcol = 1 AND 3rdcol > 2")
 print(res)
+"""
