@@ -26,14 +26,14 @@ int main() {
 	Encryptor encryptor(context, public_key);
     Evaluator evaluator(context);
     Decryptor decryptor(context, secret_key);
-    BatchEncoder batch_encoder(context);
+    //BatchEncoder batch_encoder(context);
 
 
 	// This x is the value that is going to be encrypted
-	int x = 1234567;
+	int x = 120;
     Plaintext x_plain(to_string(x));
     
-    IntegerEncoder encoder(context);
+    //IntegerEncoder encoder(context);
     
     /*
     Plaintext plain_matrix;
