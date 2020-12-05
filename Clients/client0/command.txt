@@ -1,3 +1,0 @@
-CREATE TABLE tablename (col1name TEXT | INT, col2name TEXT | INT, ... , colNname TEXT | INT)
-
-INSERT INTO TABLE (col1name, ... , colNname) VALUES (value1, .., valueN)

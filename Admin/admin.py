@@ -2,6 +2,8 @@ import os
 import shutil
 import ssl
 import sys
+import json
+from shutil import copy
 sys.path.append(".")
 
 from security import Security
@@ -12,11 +14,15 @@ class Admin:
     n_clients = 0
     dir_path = os.getcwd()
     securityAPI = Security()
+    client_file_name = ""
 
     def __init__(self, local = 0, n_clients = 1):
         self.n_clients = n_clients
         self.createClient()
         self.configClient()
+        with open('./config.json') as f:
+            config_file = json.load(f)
+            self.client_file_name = config_file["client-file"]
 
     def createClient(self):
         for x in range(self.n_clients):
@@ -29,6 +35,7 @@ class Admin:
                 self.clients[x] = {
                     "location": client_dir
                 }
+                copy("./cache/client.py", client_dir+self.client_file_name)
             except OSError:
                 print ("Falha a criar a pasta de cliente %d", x)
     
