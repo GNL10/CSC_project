@@ -7,3 +7,4 @@ output/
 CMakeCache.txt
 cmake_install.cmake
 Makefile
+*.pyc
