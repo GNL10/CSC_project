@@ -1,4 +1,3 @@
-from Server.process_command import process_command
 import os
 import json
 import sys
@@ -6,7 +5,7 @@ sys.path.append(".")
 
 from fileparser import FileParser
 from security import Security
-from databasemanager import DataBaseManager
+from process_command import process_command as db
 
 class Server:
 
@@ -45,20 +44,23 @@ class Server:
         with open('./config.json') as f:
             config_file = json.load(f)
             commands_content = FileParser.open(file_path = client_path + "/" + config_file["client-command-file"])
-        
+            
         for cmd_encrypted in commands_content:
+            print(commands_content[cmd_encrypted])
             # pipeline security proccess using RSA encryption
-            cmd_RSA_decrypted = Security.pipelineRSASecurity(commands_content[cmd_encrypted])
+            # cmd_RSA_decrypted = Security.pipelineRSASecurity(commands_content[cmd_encrypted])
             
-            command["db_cmd"], command["db_key"] = FileParser.parse(cmd_RSA_decrypted)
-            if command["db_cmd"] is None: continue
-            
+            #command["db_cmd"], command["db_key"] = FileParser.parse(cmd_RSA_decrypted)
+            #if command["db_cmd"] is None: continue
+
             try:
-                db_manager_method = getattr(DataBaseManager, command["db_cmd"])
-                res = process_command("command", "client")
+                #db_manager_method = getattr(DataBaseManager, command["db_cmd"])
+                res = db(commands_content[cmd_encrypted], client)
+                
+                print(res)
             except AttributeError:
                 raise NotImplementedError("lol, claramente que tentaste chamar um metodo nao definido smh")
-            db_manager_method(command)
+            #db_manager_method(command)
     
         return 1
 
