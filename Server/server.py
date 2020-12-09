@@ -1,4 +1,4 @@
-from Server.process_command import process_command
+from process_command import process_command
 import os
 import json
 import sys
@@ -6,7 +6,6 @@ sys.path.append(".")
 
 from fileparser import FileParser
 from security import Security
-from databasemanager import DataBaseManager
 
 class Server:
 
@@ -54,11 +53,12 @@ class Server:
             if command["db_cmd"] is None: continue
             
             try:
-                db_manager_method = getattr(DataBaseManager, command["db_cmd"])
+                #db_manager_method = getattr(DataBaseManager, command["db_cmd"])
                 res = process_command("command", "client")
+                print(res)
             except AttributeError:
                 raise NotImplementedError("lol, claramente que tentaste chamar um metodo nao definido smh")
-            db_manager_method(command)
+            #db_manager_method(command)
     
         return 1
 
