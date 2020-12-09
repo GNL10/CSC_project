@@ -6,4 +6,6 @@ server = Server()
 
 server.searchClients()
 
-server.respondToClient(0, "lsdjdlfkjsd")
+server.proccessCommand(client=0)
+
+#server.respondToClient(0, "lsdjdlfkjsd")

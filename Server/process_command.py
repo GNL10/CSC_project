@@ -13,7 +13,7 @@ class Table:
             self.cols.append(i.split(' '))
 
     #prints all info stored on the table
-    def print (self):
+    def _print (self):
         print("\n##### Table Info #####")
         print("Name :", self.name)
         print("Owner :", self.owner)
@@ -102,10 +102,10 @@ class Table:
         
 database = []
 
-def process_command(cmd):
+def process_command(cmd, client):
     global database
     cmd_data  = cmd.split()
-    print(cmd.split())
+    #print(cmd.split())
 
     #CREATE TABLE
     if (cmd_data[0].lower() == 'create' and cmd_data[1].lower() == 'table'):
@@ -115,7 +115,7 @@ def process_command(cmd):
         data = data.strip(')')          # deletes '(' in the end
         parameters = data.split(', ')   # columns of the table
     
-        database.append(Table(table_name, "John", parameters))
+        database.append(Table(table_name, client, parameters))
 
     #INSERT INTO
     elif (cmd_data[0].lower() == 'insert' and cmd_data[1].lower() == 'into' and cmd_data[3].lower() == 'values'):
@@ -193,7 +193,6 @@ def analyse_conditions (conditions_raw):
             aux.append(2)
             res.append(aux)
     return res, op_code
-
 
 """
 process_command("CREATE TABLE tablename (1stcol int, 2ndcol int, 3rdcol text, 4thcol int)")

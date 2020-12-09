@@ -1,0 +1,9 @@
+CREATE TABLE tablename (1stcol int, 2ndcol int, 3rdcol text, 4thcol int)
+INSERT INTO tablename VALUES (1, 1asd, 2, 4)
+INSERT INTO tablename VALUES (3, kgmw, 1, 12)
+
+
+INSERT INTO tablename VALUES (1, kgmw, 1, 12)
+INSERT INTO tablename VALUES (1, kmw, 2, 12)
+
+SELECT 1stcol, 2ndcol, 3rdcol FROM tablename WHERE 1stcol = 1 AND 3rdcol > 2
