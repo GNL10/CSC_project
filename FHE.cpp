@@ -1,18 +1,6 @@
-#include "seal/seal.h"
-#include <iostream>
-#include <fstream>
 #include "FHE.h"
 
-#define DEBUG 1
-
-using namespace std;
-using namespace seal;
-
-char const *PK_fname = "public_key.txt";
-char const *SK_fname = "secret_key.txt";
-char const *input_fname  = "encrypted.txt";
-
-
+/*
 int main () {   
 
 	SEALContext context = create_context();
@@ -37,7 +25,7 @@ int main () {
     for (int value = 0; value < 20; value ++)
         decrypt_value(context, secret_key, encrypted_file_in);
     encrypted_file_in.close();
-}
+}*/
 
 /**
  * Creates a context with: 
@@ -68,7 +56,7 @@ SecretKey load_SK_from_file(SEALContext context, const char *secret_key_fname) {
     // read secret key
     SecretKey secret_key;
     ifstream secret_key_f;
-    secret_key_f.open(SK_fname, ios::binary);
+    secret_key_f.open(secret_key_fname, ios::binary);
 	secret_key.load(context, secret_key_f);
 	secret_key_f.close();
     if (DEBUG)
@@ -151,7 +139,7 @@ void encrypt_value(SEALContext context, int value, PublicKey public_key, ofstrea
  * @param encrypted_file File to read the encrypted data from
  * @return Integer with decrypted value
  */
-Plaintext decrypt_value(SEALContext context, SecretKey secret_key, ifstream &encrypted_file) {
+int decrypt_value(SEALContext context, SecretKey secret_key, ifstream &encrypted_file) {
 
     Decryptor decryptor(context, secret_key);
 
@@ -165,5 +153,5 @@ Plaintext decrypt_value(SEALContext context, SecretKey secret_key, ifstream &enc
 
     if (DEBUG)
         cout << "[DEBUG] Decrypted value   -> \tdecimal: " << (int)strtol(x_decrypted.to_string().c_str(), NULL, 16) << " \t hex: " << x_decrypted.to_string() << endl;
-    return x_decrypted;
+    return (int)strtol(x_decrypted.to_string().c_str(), NULL, 16);
 }
