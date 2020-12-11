@@ -128,6 +128,40 @@ class SealWrapperServer {
         }
 };
 
+class SealWrapperServer {
+    private:
+        EncryptionParameters* _params;
+        PublicKey* _public_key;
+        SEALContext* ctx;
+
+        Encryptor* _encryptor;
+
+    public:
+        Evaluator* _evaluator;
+
+        SealWrapperServer(EncryptionParameters params, PublicKey public_key){
+            _public_key = &public_key;
+            _params = &params;
+
+            static SEALContext context(*_params);
+            ctx = &context;
+
+            // set backbone functionality of Seal
+            static Evaluator evaluator(*ctx);
+            static Encryptor encryptor(*ctx, *_public_key);
+
+            _encryptor = &encryptor;
+            _evaluator = &evaluator;
+        }
+
+        Ciphertext encrypt(int input){
+            Plaintext input_plain(to_string(input));
+            Ciphertext input_encrypted;
+            _encryptor->encrypt(input_plain, input_encrypted);
+            return input_encrypted;
+        }
+};
+
 class Comparator{
     public:
         Ciphertext _not(Ciphertext a, Evaluator &eval){
