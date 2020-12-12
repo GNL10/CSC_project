@@ -11,16 +11,16 @@ class SealWrapperClient {
 
         EncryptionParameters* _params;
         SEALContext* ctx;
-        KeyGenerator* _keygen;
 
         SecretKey* _secret_key;
         PublicKey* _public_key;
 
         Encryptor* _encryptor;
-        Decryptor* _decryptor;
 
     public:
         Evaluator* _evaluator;
+        KeyGenerator* _keygen;
+        Decryptor* _decryptor; // mudar para privado
 
         SealWrapperClient(size_t poly_modulus_degree, int plain_modulus = 1024){
             static EncryptionParameters params(scheme_type::bfv);
@@ -66,6 +66,12 @@ class SealWrapperClient {
 
         Ciphertext encrypt(int input){
             Plaintext input_plain(to_string(input));
+            Ciphertext input_encrypted;
+            _encryptor->encrypt(input_plain, input_encrypted);
+            return input_encrypted;
+        }
+
+        Ciphertext encrypt_from_plain(Plaintext input_plain){
             Ciphertext input_encrypted;
             _encryptor->encrypt(input_plain, input_encrypted);
             return input_encrypted;

@@ -4,6 +4,7 @@
 #include "server.h"
 
 class Comparator{
+    
     public:
         Ciphertext _not(Ciphertext a, Evaluator &eval){
             Plaintext plain_one("1");
@@ -25,18 +26,11 @@ class Comparator{
             return a;
         }
 
-        Ciphertext _and_3_inputs(Ciphertext a, Ciphertext b, Ciphertext c, Evaluator &eval){
-            eval.multiply_inplace(a,b);
-            eval.multiply_inplace(a,c);
-            return a;
-        }
-
         tuple<Ciphertext, Ciphertext, Ciphertext> \
-        compare1bit( tuple<Ciphertext, Ciphertext, Ciphertext> last_proccess, Ciphertext a_i, Ciphertext b_i, Evaluator &eval){
+        compare( tuple<Ciphertext, Ciphertext, Ciphertext> last_proccess, Ciphertext a_i, Ciphertext b_i, Evaluator &eval){
             Ciphertext next_greater_than = _and(a_i,_not(b_i, eval), eval);
             Ciphertext next_equal = _not(_or(_and(_not(a_i, eval), b_i, eval), _and(a_i, _not(b_i, eval), eval), eval), eval);
             Ciphertext next_smaller_than = _and(_not(a_i, eval), b_i, eval);
-            // falta manipular last_proccess
             return make_tuple(next_greater_than, next_equal, next_smaller_than);
         }
 

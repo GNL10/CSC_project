@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <fstream>
 
 using namespace std;
 using namespace seal;
@@ -17,16 +18,16 @@ class SealWrapperClient {
 
         EncryptionParameters* _params;
         SEALContext* ctx;
-        KeyGenerator* _keygen;
 
         SecretKey* _secret_key;
         PublicKey* _public_key;
 
         Encryptor* _encryptor;
-        Decryptor* _decryptor;
 
     public:
         Evaluator* _evaluator;
+        Decryptor* _decryptor;
+        KeyGenerator* _keygen;
 
         SealWrapperClient(size_t poly_modulus_degree, int plain_modulus = 1024){
             static EncryptionParameters params(scheme_type::bfv);
@@ -77,6 +78,12 @@ class SealWrapperClient {
             return input_encrypted;
         }
 
+        Ciphertext encrypt_fromPlaintext(Plaintext input){
+            Ciphertext input_encrypted;
+            _encryptor->encrypt(input, input_encrypted);
+            return input_encrypted;
+        }
+
         Plaintext decrypt(Ciphertext input){
             Plaintext input_decrypted;
             _decryptor->decrypt(input, input_decrypted);
@@ -98,46 +105,13 @@ class SealWrapperServer {
     private:
         EncryptionParameters* _params;
         PublicKey* _public_key;
-        SEALContext* ctx;
+        
 
         Encryptor* _encryptor;
 
     public:
         Evaluator* _evaluator;
-
-        SealWrapperServer(EncryptionParameters params, PublicKey public_key){
-            _public_key = &public_key;
-            _params = &params;
-
-            static SEALContext context(*_params);
-            ctx = &context;
-
-            // set backbone functionality of Seal
-            static Evaluator evaluator(*ctx);
-            static Encryptor encryptor(*ctx, *_public_key);
-
-            _encryptor = &encryptor;
-            _evaluator = &evaluator;
-        }
-
-        Ciphertext encrypt(int input){
-            Plaintext input_plain(to_string(input));
-            Ciphertext input_encrypted;
-            _encryptor->encrypt(input_plain, input_encrypted);
-            return input_encrypted;
-        }
-};
-
-class SealWrapperServer {
-    private:
-        EncryptionParameters* _params;
-        PublicKey* _public_key;
         SEALContext* ctx;
-
-        Encryptor* _encryptor;
-
-    public:
-        Evaluator* _evaluator;
 
         SealWrapperServer(EncryptionParameters params, PublicKey public_key){
             _public_key = &public_key;
@@ -186,9 +160,37 @@ class Comparator{
 
         tuple<Ciphertext, Ciphertext, Ciphertext> \
         compare( tuple<Ciphertext, Ciphertext, Ciphertext> last_proccess, Ciphertext a_i, Ciphertext b_i, Evaluator &eval){
-            Ciphertext next_greater_than = _and(a_i,_not(b_i, eval), eval);
-            Ciphertext next_equal = _not(_or(_and(_not(a_i, eval), b_i, eval), _and(a_i, _not(b_i, eval), eval), eval), eval);
-            Ciphertext next_smaller_than = _and(_not(a_i, eval), b_i, eval);
-            return make_tuple(next_greater_than, next_equal, next_smaller_than);
+            Ciphertext next_greater_than = _or(get<0>(last_proccess),_and(get<1>(last_proccess),_and(a_i,_not(b_i, eval), eval), eval), eval);
+            Ciphertext next_smaller_than = _or(get<2>(last_proccess),_and(get<1>(last_proccess), _and(_not(a_i, eval), b_i, eval), eval), eval);
+            Ciphertext next_equal = _not(_or(next_greater_than, next_smaller_than, eval), eval);
+
+            return {next_greater_than, next_equal, next_smaller_than};
         }
+
+        tuple<Ciphertext, Ciphertext, Ciphertext> \
+        compareBits(tuple<Ciphertext, Ciphertext, Ciphertext> init, vector<Ciphertext> A, vector<Ciphertext> B, Evaluator &eval){
+
+            tuple<Ciphertext, Ciphertext, Ciphertext> last_proccess = init;
+            Ciphertext next_greater_than;
+            Ciphertext next_smaller_than;;
+            Ciphertext next_equal;
+
+            tuple<Ciphertext, Ciphertext, Ciphertext> _last_proccess;
+
+            int n_bits = A.size();
+
+            for(int i=n_bits-1; i>=0 ;i--){
+                next_greater_than = _or(get<0>(last_proccess),_and(get<1>(last_proccess),_and(A[i],_not(B[i], eval), eval), eval), eval);
+                next_smaller_than = _or(get<2>(last_proccess),_and(get<1>(last_proccess), _and(_not(A[i], eval), B[i], eval), eval), eval);
+                next_equal = _not(_or(next_greater_than, next_smaller_than, eval), eval);
+
+                _last_proccess = make_tuple(_or(get<0>(last_proccess),_and(get<1>(last_proccess),_and(A[i],_not(B[i], eval), eval), eval), eval), \
+                        _not(_or(next_greater_than, next_smaller_than, eval), eval),\
+                        _or(get<2>(last_proccess),_and(get<1>(last_proccess), _and(_not(A[i], eval), B[i], eval), eval), eval));
+                last_proccess = init;
+            }
+
+            return {next_greater_than, next_equal, next_smaller_than};
+        }
+        
 };
