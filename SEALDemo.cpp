@@ -123,6 +123,7 @@ int main() {
         
     }
     encrypted_file.close();
+
     //IntegerEncoder encoder(context);
     
     /*
