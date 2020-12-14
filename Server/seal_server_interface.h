@@ -5,25 +5,45 @@
 
 class SealWrapperServer {
     private:
+        size_t _poly_modulus_degree;
+        vector<Modulus> _coeff_modulus;
+        int _plain_modulus;
+
         EncryptionParameters* _params;
         SEALContext* ctx;
 
     public:
         Evaluator* _evaluator;
-        SealWrapperServer(){
+        RelinKeys* _relin_keys;
+        
+        SealWrapperServer(size_t poly_modulus_degree, int plain_modulus, RelinKeys *relin_keys){
             static EncryptionParameters params(scheme_type::bfv);
-            params.set_poly_modulus_degree(4096);
-            params.set_coeff_modulus(CoeffModulus::BFVDefault(4096));
-            params.set_plain_modulus(1024);
+
+            _poly_modulus_degree = poly_modulus_degree;
+
+            // set poly modulus degree
+            params.set_poly_modulus_degree(_poly_modulus_degree);
+
+            // set coeff modulus
+            _coeff_modulus = CoeffModulus::BFVDefault(_poly_modulus_degree);
+
+            params.set_coeff_modulus(_coeff_modulus);
+
+            // set plain modulus
+            _plain_modulus = plain_modulus;
+            params.set_plain_modulus(_plain_modulus);
             _params = &params;
 
             static SEALContext context(*_params);
             ctx = &context;
 
+            _relin_keys = relin_keys;
+
             // set backbone functionality of Seal
             static Evaluator evaluator(*ctx);
             _evaluator = &evaluator;
         }
+
 };
 
 #endif

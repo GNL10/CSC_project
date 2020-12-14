@@ -8,5 +8,3 @@
 
 using namespace seal;
 using namespace std;
-
-

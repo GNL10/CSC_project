@@ -1,71 +1,40 @@
 #include "seal_wrapper.h"
 
-/*
-void saveCiphertext(Ciphertext encrypted, string filename){
-  ofstream ct;
-  ct.open(filename, ios::binary);
-  encrypted.save(ct);
-};
+/* -> Como escolher poly_modulus_degree e plain_modulus
 
-Ciphertext loadCiphertext(string filename, SEALContext ctx){
+	    +----------------------------------------------------+
+        | poly_modulus_degree | max coeff_modulus bit-length |
+        +---------------------+------------------------------+
+        | 1024                | 27                           |
+        | 2048                | 54                           |
+        | 4096                | 109                          |
+        | 8192                | 218                          |
+        | 16384               | 438                          |
+        | 32768               | 881                          |
+        +---------------------+------------------------------+
 
-  ifstream ct;
-  ct.open(filename, ios::binary);
-  Ciphertext result;
-  result.load(ctx, ct);
-
-  return result;
-};
+	sealClient((size_t)poly_modulus_degree, plain_modulus)
 */
 
 int main(){
-    SealWrapperClient sealClient((size_t)8192, 218);
+    SealWrapperClient sealClient((size_t)16384, 438);
     SealWrapperServer sealServer(sealClient.getParams(), sealClient.getPublicKey());
-    Comparator comparator;
+    Comparator comparator(sealServer._evaluator, sealClient._relin_key);
 
-    /////////////////////////////////////////////////////////////////////////////////////
-    // Client Side
-    
 	Ciphertext x_0_encrypted = sealClient.encrypt(0);
-	Ciphertext x_1_encrypted = sealClient.encrypt(1);
+    Ciphertext x_1_encrypted = sealClient.encrypt(1);
+	
+	vector<Ciphertext> A = { x_1_encrypted, x_0_encrypted,x_1_encrypted, x_0_encrypted };
+	vector<Ciphertext> B = { x_1_encrypted, x_0_encrypted,x_0_encrypted, x_1_encrypted };
 
-	vector<Ciphertext> A = {x_0_encrypted, x_0_encrypted, x_1_encrypted};
-	vector<Ciphertext> B = {x_1_encrypted, x_0_encrypted, x_0_encrypted};
+	auto init = make_tuple(x_0_encrypted, x_1_encrypted, x_0_encrypted);
+	
+	auto res = comparator.compareNBits(tuple<Ciphertext, Ciphertext, Ciphertext>{x_0_encrypted, x_1_encrypted, x_0_encrypted},\
+							A, B, *sealServer._evaluator);
 
-    int num_bits = A.size();
-    cout << num_bits << endl;
-
-	auto _prev_logic_res = make_tuple(x_0_encrypted, x_1_encrypted, x_0_encrypted);
-    tuple<Ciphertext, Ciphertext, Ciphertext> _next_logic_res;
-
-    // Server Side
-    
-    Plaintext r;
-    Plaintext r1;
-    Plaintext r2;
-
-    Ciphertext d;
-    Ciphertext d1;
-    Ciphertext d2;
-
-    for(int i = num_bits-1; i>=0; i--){
-        _next_logic_res = comparator.compare(_prev_logic_res, A[i], B[i], *sealServer._evaluator);
-
-        r = sealClient.decrypt(get<0>(_next_logic_res));
-        r1 = sealClient.decrypt(get<1>(_next_logic_res));
-        r2 = sealClient.decrypt(get<2>(_next_logic_res));
-
-        d = sealClient.encrypt_fromPlaintext(r);
-        d1 = sealClient.encrypt_fromPlaintext(r1);
-        d2 = sealClient.encrypt_fromPlaintext(r2);
-
-        _prev_logic_res = make_tuple(d, d1, d2);
-    }
-    
-    // Client Side
-    cout << "A>B:" << sealClient.decrypt_toString(get<0>(_next_logic_res)) <<\
-            " A=B:" << sealClient.decrypt_toString(get<1>(_next_logic_res)) <<\
-            " A<B:" << sealClient.decrypt_toString(get<2>(_next_logic_res)) << endl;
+	cout << "A>B:" << sealClient.decrypt_toString(get<0>(res)) <<\
+            " A=B:" << sealClient.decrypt_toString(get<1>(res)) <<\
+            " A<B:" << sealClient.decrypt_toString(get<2>(res)) << endl;
 
     return 0;
 }

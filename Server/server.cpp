@@ -3,29 +3,27 @@
 #include "comparator.h"
 
 int main(){
-
+	// client side
     SealWrapperClient sealClient((size_t)32768, 881);
-    SealWrapperServer sealServer;
-    Comparator comparator;
 
-    int A = 1;
-    int B = 1;
-
+    // server side
+    SealWrapperServer sealServer(sealClient._poly_modulus_degree, sealClient._plain_modulus, sealClient._relin_key);
+    Comparator comparator(sealServer._evaluator, sealServer._relin_keys);
+    
     Ciphertext x_0_encrypted = sealClient.encrypt(0);
     Ciphertext x_1_encrypted = sealClient.encrypt(1);
+	
+	vector<Ciphertext> A = { x_1_encrypted, x_0_encrypted,x_1_encrypted, x_0_encrypted };
+	vector<Ciphertext> B = { x_1_encrypted, x_0_encrypted,x_1_encrypted, x_0_encrypted };
 
-    Ciphertext value_x_encrypted = sealClient.encrypt(A);
-    Ciphertext value_y_encrypted = sealClient.encrypt(B);
+	auto init = make_tuple(x_0_encrypted, x_1_encrypted, x_0_encrypted);
 
-    // Server Side
-    auto logic_res = comparator.compare(\
-            tuple<Ciphertext, Ciphertext, Ciphertext>{x_0_encrypted, x_0_encrypted, x_1_encrypted},\
-            value_x_encrypted, value_y_encrypted, *sealServer._evaluator);
-    
-    // Client Side
-    cout << "A>B:" << sealClient.decrypt_toString(get<0>(logic_res)) <<\
-            " A=B:" << sealClient.decrypt_toString(get<1>(logic_res)) <<\
-            " A<B:" << sealClient.decrypt_toString(get<2>(logic_res)) << endl;
+	auto res = comparator.compareNBits(tuple<Ciphertext, Ciphertext, Ciphertext>{x_0_encrypted, x_1_encrypted, x_0_encrypted},\
+													A, B, *sealServer._evaluator);
+
+	cout << "A>B:" << sealClient.decrypt_toString(get<0>(res)) <<\
+			" A=B:" << sealClient.decrypt_toString(get<1>(res)) <<\
+			" A<B:" << sealClient.decrypt_toString(get<2>(res)) << endl;
 
     return 0;
 

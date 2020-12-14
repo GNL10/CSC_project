@@ -5,22 +5,24 @@
 
 class SealWrapperClient {
     private:
-        size_t _poly_modulus_degree;
         vector<Modulus> _coeff_modulus;
-        int _plain_modulus;
-
+        
         EncryptionParameters* _params;
         SEALContext* ctx;
-
         SecretKey* _secret_key;
         PublicKey* _public_key;
 
-        Encryptor* _encryptor;
+    protected:
+        KeyGenerator* _keygen;
+        Decryptor* _decryptor;
 
     public:
+        size_t _poly_modulus_degree;
+        int _plain_modulus;
+
         Evaluator* _evaluator;
-        KeyGenerator* _keygen;
-        Decryptor* _decryptor; // mudar para privado
+        Encryptor* _encryptor;
+        RelinKeys* _relin_key;
 
         SealWrapperClient(size_t poly_modulus_degree, int plain_modulus = 1024){
             static EncryptionParameters params(scheme_type::bfv);
@@ -59,6 +61,10 @@ class SealWrapperClient {
             static Decryptor decryptor(*ctx, *_secret_key);
             static Evaluator evaluator(*ctx);
 
+            static RelinKeys relin_keys;
+            _keygen->create_relin_keys(relin_keys);
+            _relin_key = &relin_keys;
+
             _encryptor = &encryptor;
             _decryptor = &decryptor;
             _evaluator = &evaluator;
@@ -71,9 +77,9 @@ class SealWrapperClient {
             return input_encrypted;
         }
 
-        Ciphertext encrypt_from_plain(Plaintext input_plain){
+        Ciphertext encrypt_fromPlaintext(Plaintext input){
             Ciphertext input_encrypted;
-            _encryptor->encrypt(input_plain, input_encrypted);
+            _encryptor->encrypt(input, input_encrypted);
             return input_encrypted;
         }
 
