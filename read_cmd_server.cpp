@@ -13,6 +13,7 @@ char const *int_placeholder = "_int_";
 
 static const string CREATE_TABLE = "CREATE TABLE ";
 static const string INSERT_INTO = "INSERT INTO ";
+static const string VALUES = "VALUES ";
 static const string SELECT = "SELECT ";
 static const string LINE = "LINE ";
 static const string DELETE = "DELETE ";
@@ -20,10 +21,24 @@ static const string FROM = "FROM ";
 static const string WHERE = "WHERE ";
 static const string SUM = "SUM(";
 static const string SPACE = " ";
+static const string AND = " AND ";
+static const string OR = " OR ";
+static const string BIGGER = ">";
+static const string SMALLER = "<";
+static const string EQUAL = "=";
+
+struct cond_info {
+    string colname;
+    int op; // -1 for <    0 for =    1 for >
+    int logical_op; // -1 for OR   1 for AND
+    Ciphertext full_num;
+    list <Ciphertext> bits_num;
+};
 
 
 void delete_char_in_str (string &str, char c);
-void read_command (SEALContext context, ifstream &cmd_file_in, ifstream &fhe_file_in);
+void read_command (ifstream &cmd_file_in, ifstream &fhe_file_in);
+
 
 class Table {
     public:
@@ -31,7 +46,7 @@ class Table {
         string tablename;
         list <string> col_names;
         int col_num;
-        list <list<int>> rows; //change int to ciphertext struct
+        list <list<int>> rows; //change int to Ciphertext struct
         Table (string _owner, string _tablename, list <string>& _col_names);
         bool insert_row (list<int> &row);
     };
@@ -49,7 +64,7 @@ class Table {
             return false; // insertion was not successful
         rows.push_back(row);
         return true; // insertion was successful
-}
+    }
 
 int main () {
     bool flag = true; // set to false to close client
@@ -66,36 +81,7 @@ int main () {
     fhe_file_in.open(fhe_in_fname, ios::binary);
     cmd_file_in.open(cmd_in_fname, ios::binary);
 
-
-    /*
-    list <string> aux = {"col1", "col2", "col3", "col4"};
-
-    Table x("Joao", "Tabela do joao", aux);
-    std::list<string>::iterator it = x.col_names.begin();
-
-    while(it != x.col_names.end())
-    {
-        std::cout<<(*it)<<"  ";
-        it++;
-    }
-    std::cout<<std::endl;
-
-    for(int z=0 ; z < 5; z++) {
-        list<int> i;
-        i.push_back(z+1);
-        i.push_back(z+2);
-        i.push_back(z+3);
-        i.push_back(z+4);
-        x.insert_row(i);
-    }
-
-    for (list<list<int>>::iterator it = x.rows.begin(); it != x.rows.end(); it++){
-        for (list<int>::iterator number = (*it).begin(); number != (*it).end(); number++)
-            cout << *number << " ";
-        cout << endl;
-    }*/
-
-    //read_command(context, cmd_file_in, fhe_file_in);
+    read_command(cmd_file_in, fhe_file_in);
 
 
     fhe_file_out.close();
@@ -122,80 +108,221 @@ bool find_and_del_in_str (string &str, string str_to_find) {
     return false;
 }
 
-void read_command (SEALContext context, ifstream &cmd_file_in, ifstream &fhe_file_in) {
+list <string> read_within_commas (string str) {
+    list<string> info;
+    size_t pos = 0;
+
+    str.erase(remove(str.begin(), str.end(), ' '), str.end());// erase all spaces from string
+    while ((pos = str.find(',')) != std::string::npos) {
+        info.push_back(str.substr(0 ,pos)); // push column name in list
+        str = str.substr(pos+1, str.size()); // move to next colname
+    }
+    info.push_back(str); // after while runs, last argument is last col
+    return info;
+}
+
+list <string> read_within_parenthisis (string str) {
+    list<string> info;
+    string token;
+    size_t pos = 0;
+    str.erase(remove(str.begin(), str.end(), ' '), str.end()); // erase all spaces from string
+    if (find_and_del_in_str(str, "(")) {
+        do {
+            if ((pos = str.find(',')) != std::string::npos){
+                token = str.substr(0, pos);
+                info.push_back(token);
+            }
+            else if ((pos = str.find(')')) != std::string::npos){
+                token = str.substr(0, pos);
+                info.push_back(token);
+                break;
+            }
+        } while (find_and_del_in_str(str, ","));
+    }
+    else{
+        throw "FAILED: in create table no '(' was found";
+    }
+    return info;
+}
+
+string get_tablename (string &line) {
+    size_t pos = 0;
+    string tablename;
+    if (find_and_del_in_str(line, FROM)) { // extracting tablename
+        if ((pos = line.find(SPACE)) != std::string::npos) {
+            tablename = line.substr(0, pos);
+            find_and_del_in_str(line, tablename + SPACE);
+        }
+        return tablename;
+    }
+    return "ERROR";
+}
+
+struct cond_info get_one_condition (string str) {
+    size_t pos = 0, pos_and = 0, pos_or = 0;
+    string curr_cond;
+    struct cond_info condition;
+
+    //analysing condition
+    pos_and = str.find(AND);
+    pos_or = str.find(OR);
+
+    if (pos_and == string::npos && pos_or == string::npos) //if there are no ands or ors
+        curr_cond = str;
+    else if (pos_and > pos_or) // read an OR first
+        curr_cond = str.substr(0, pos_or);
+    else // read an AND first
+        curr_cond = str.substr(0, pos_and);
+
+    curr_cond.erase(remove(curr_cond.begin(), curr_cond.end(),' '), curr_cond.end()); // erase all spaces from string
+
+    cout << "curr_cond : " << curr_cond << endl;
+
+    if ((pos = curr_cond.find(BIGGER)) != std::string::npos) {
+        condition.colname = str.substr(0, pos);
+        condition.op = 1;
+    }
+    else if ((pos = curr_cond.find(SMALLER)) != std::string::npos) {
+        condition.colname = str.substr(0, pos);
+        condition.op = -1;
+    }
+    else if ((pos = curr_cond.find(EQUAL)) != std::string::npos) {
+        condition.colname = str.substr(0, pos);
+        condition.op = 0;
+    }
+    else
+        throw "ERROR: get_one_condition was unable to identify >, < or =";
+    cout << "Colname : " << condition.colname << " condition : " << condition.op << endl;
+    return condition;
+}
+
+void parse_conditions (string line, list<cond_info> &conditions) {
+    size_t pos = 0;
+    string curr_cond;
+    struct cond_info cond;
+
+    cout << "Parse conditions : " << line << endl;
+    //analysing 1st condition
+    conditions.push_back(get_one_condition(line));
+    while (line.find(AND) != std::string::npos || line.find(OR) != std::string::npos) {
+        if (find_and_del_in_str(line, AND)) {
+            cout << "Found AND condition" << endl;
+            cond = get_one_condition(line);
+            cond.logical_op = 1;
+            conditions.push_back(cond);
+        }
+        else if (find_and_del_in_str(line, OR)) {
+            cout << "Found OR condition" << endl;
+            cond = get_one_condition(line);
+            cond.logical_op = -1;
+            conditions.push_back(cond);
+        }
+    }
+}
+
+void read_command (ifstream &cmd_file_in, ifstream &fhe_file_in) {
     string line;
     size_t pos = 0;
     int val;
     // CREATE TABLE tablename (col1name, col2name, … , colNname)
     // INSERT INTO tablename VALUES (value1, .., valueN)
-    // SELECT LINE linenum FROM tablename
     // DELETE linenum FROM tablename
+    // SELECT LINE linenum FROM tablename
     // SELECT col1name, .., colNname FROM tablename WHERE col1name =|<|>value1 AND|OR col2name =|<|> value2
     // SELECT SUM(colname) FROM tablename WHERE col1name =|<|> value AND|OR col2name =|<|> value
 
 
-    while ( getline (cmd_file_in,line) ) { //run through all lines of file
+    while ( getline (cmd_file_in,line)) { //run through all lines of file
         if (DEBUG)
             cout << "[DEBUG] Command read from file: " << line << endl;
 
-        std::string token;
-        size_t pos = 0;
         string tablename;
+        int linenum;
 
+        // CREATE TABLE tablename (col1name, col2name, … , colNname)
         if (find_and_del_in_str(line, CREATE_TABLE)) {
             if ((pos = line.find(SPACE)) != std::string::npos) {
                 tablename = line.substr(0, pos);
                 find_and_del_in_str(line, tablename + SPACE);
-
-                line.erase(remove(line.begin(), line.end(), ' '), line.end()); // erase all spaces from string
-                std::cout << "args: " << line << std::endl;
-                if (find_and_del_in_str(line, "(")) {
-                    cout << "after deleting (: " << line << endl;
-                    do {
-                        //string token =
-                        cout << "after reading ,: " << line << endl;
-                    } while (find_and_del_in_str(line, ","));
+                list<string> col_list = read_within_parenthisis (line); // list with column names
+                // CALL FUNCTION HERE
+            }
+        }
+        // INSERT INTO tablename VALUES (value1, .., valueN)
+        else if (find_and_del_in_str(line, INSERT_INTO)) {
+            if ((pos = line.find(SPACE)) != std::string::npos) {
+                tablename = line.substr(0, pos);
+                find_and_del_in_str(line, tablename + SPACE);
+                if (find_and_del_in_str(line, VALUES)) {
+                    list<string> arg_list = read_within_parenthisis (line); // list with arguments in parenthisis
+                    // CALL FUNCTION HERE
                 }
-                else{
-                    cout << "Failed" << endl;
-                    //failed
+            }
+        }
+        // SELECT CONDITIONS
+        else if (find_and_del_in_str(line, SELECT)) {
+            // SELECT LINE linenum FROM tablename
+            if (find_and_del_in_str(line, LINE)) {
+                if ((pos = line.find(SPACE)) != std::string::npos){
+                    linenum = stoi(line.substr(0, pos));
+                    if (find_and_del_in_str(line, FROM)) { // extracting tablename
+                        tablename = line;
+                        // CALL FUNCTION HERE
+                    }
+
+                }
+            }
+            // SELECT SUM(colname) FROM tablename WHERE col1name =|<|> value AND|OR col2name =|<|> value
+            else if (find_and_del_in_str(line, SUM)){
+                string sum;
+                if ((pos = line.find(')')) != std::string::npos){
+                    sum = line.substr(0, pos);
+                    tablename = get_tablename(line);
+                    if (find_and_del_in_str(line, WHERE)) { // there are conditions to read
+                        list<cond_info> conditions;
+                        parse_conditions(line, conditions);
+                        // CALL FUNCTION HERE
+                    }
+                    else { // there are no condit
+                        // sum every line
+                        cout << "No conditions " << endl;
+                        // CALL FUNCTION HERE
+                    }
                 }
 
             }
-            cout << "READ: " << CREATE_TABLE << endl;
-        }
-        else if (find_and_del_in_str(line, INSERT_INTO)) {
-            cout << "READ : " << INSERT_INTO << endl;
-        }
-        else if (find_and_del_in_str(line, SELECT)) {
-            cout << "READ : " << SELECT << endl;
+            // SELECT col1name, .., colNname FROM tablename WHERE col1name =|<|>value1 AND|OR col2name =|<|> value2
+            else{
+                // get columns
+                if ((pos = line.find(FROM)) != std::string::npos){
+                    list <string> col_list = read_within_commas(line.substr(0, pos));
+                    tablename = get_tablename(line);
+                    // get condit
+                    if (find_and_del_in_str(line, WHERE)) { // there are conditions to read
+                        list<cond_info> conditions;
+                        parse_conditions(line, conditions);
+                        // CALL FUNCTION HERE
+                    }
+                    else { // there are no condit
+                        // sum every line
+                        cout << "No conditions " << endl;
+                        // CALL FUNCTION HERE
+                    }
+                }
+            }
+
         }
         else if (find_and_del_in_str(line, DELETE)) {
-            cout << "READ : " << DELETE << endl;
+            if ((pos = line.find(SPACE)) != std::string::npos) {
+                linenum = stoi(line.substr(0, pos));
+                if (find_and_del_in_str(line, FROM)) {
+                    tablename = line;
+                    // CALL FUNCTION HERE
+                }
+            }
         }
         else {
             cout << "Command:" << line << " not recognized." << endl;
         }
-        /*
-        if ((pos = line.find(delimiter)) != std::string::npos) {
-            token = line.substr(pos + delimiter.size(), line.size());
-            std::cout << "TOKEN: " << token << std::endl;
-            delimiter = "TABLE ";
-            if ((pos = token.find(delimiter)) != std::string::npos){
-                token = token.substr(pos + delimiter.size(), token.size());
-                std::cout << "TOKEN: " << token << std::endl;
-            }
-
-        }*/
-
-        while ((pos = line.find(int_placeholder)) != string::npos ) { // for each placeholder decrypt int
-            cout << "Loaded a ciphertext in pos : " << pos  << endl;
-            line.replace(pos, strlen(int_placeholder), " ");
-            //val = decrypt_value(context, secret_key, fhe_file_in);
-            //line.replace(pos, strlen(int_placeholder), to_string(val));
-        }
-
-
-
     }
 }
