@@ -19,7 +19,7 @@ server_pem="csc-server.pem"
 server_csr="csc-server.csr"
 server_crt="csc-server.crt"
 
-#create and entering main folder
+#create and enter main folder
 mkdir $main_folder
 cd $main_folder
 
