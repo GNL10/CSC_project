@@ -11,6 +11,11 @@ char const *cmd_in_fname = "cmds_out_enc.txt"; //"cmds_in_enc.txt"; CHANGE TO TH
 
 char const *int_placeholder = "_int_";
 
+
+static const string SELECT = "SELECT ";
+static const string LINE = "LINE ";
+static const string DELETE = "DELETE ";
+
 void delete_char_in_str (string &str, char c);
 void send_command (SEALContext context, PublicKey public_key, ofstream &cmd_file_out, ofstream &fhe_file_out);
 void read_command (SEALContext context, SecretKey secret_key, ifstream &cmd_file_in, ifstream &fhe_file_in);
@@ -18,15 +23,15 @@ void read_command (SEALContext context, SecretKey secret_key, ifstream &cmd_file
 int main () {
 
     bool flag = true; // set to false to close client
-    
+
     SEALContext context = create_context();
     PublicKey public_key = load_PK_from_file(context, PK_fname);
     SecretKey secret_key = load_SK_from_file(context, SK_fname);
 
     // files to write to
     ofstream fhe_file_out, cmd_file_out;
-    fhe_file_out.open(fhe_out_fname, ios::binary);
-    cmd_file_out.open(cmd_out_fname, ios::binary);
+    fhe_file_out.open(fhe_out_fname, ios::binary | std::ios_base::app); // append instead of overwrite
+    cmd_file_out.open(cmd_out_fname, ios::binary | std::ios_base::app); // append instead of overwrite
 
     // files to read from
     ifstream fhe_file_in, cmd_file_in;
@@ -35,25 +40,23 @@ int main () {
 
     while (flag) {
         string input;
-
         cout << "\nThis is the Options Menu:\n" << endl;
         cout << "- PRESS 1 to create a security key;" << endl;
         cout << "- PRESS 2 to send a command;" << endl;
-        cout << "- PRESS 3 to read responses." << endl;
+        cout << "- PRESS 3 to read responses;" << endl;
         cout << "- PRESS 4 to quit." << endl;
 
-        
-        getline(cin, input, '\n');
-        
+        getline(cin, input);
+
         int i = 0;
         std::istringstream(input) >> i;
-        
+
         switch (i) {
             case 1:
                 gen_keys(context, SK_fname, PK_fname);
                 break;
             case 2:
-                send_command(context, public_key, cmd_file_out, fhe_file_out);                
+                send_command(context, public_key, cmd_file_out, fhe_file_out);
                 break;
             case 3:
                 read_command(context, secret_key, cmd_file_in, fhe_file_in);
@@ -63,7 +66,7 @@ int main () {
                 break;
             default:
                 cout << "ERROR: Input value not valid!";
-            
+
         }
     }
 
@@ -81,38 +84,36 @@ void delete_char_in_str (string &str, char c) {
 }
 
 void send_command (SEALContext context, PublicKey public_key, ofstream &cmd_file_out, ofstream &fhe_file_out) {
-    string str; 
+    string str;
     stringstream str_strm;
     int temp_int;
     string temp_str;
     size_t pos = 0;
 
     cout << "Enter command:" << endl;
-    getline(cin, str, ';');    
-    
-    
-    str_strm << str; //convert the string s into stringstream
+    getline(cin, str);
+    std::for_each(str.begin(), str.end(), [](char & c) {c = ::toupper(c);}); // converts the whole string to upper case
+    // ints in commands that specify a specific line, should not be homomorphically encrypted
+    if (str.find(SELECT + LINE) == string::npos && str.find(DELETE + LINE) == string::npos) {
+        str_strm << str; //convert the string s into stringstream
+        while(!str_strm.eof()) {
+            str_strm >> temp_str; //take words into temp_str one by one
+            delete_char_in_str(temp_str, '(');
+            delete_char_in_str(temp_str, ',');
+            delete_char_in_str(temp_str, ')');
 
-    while(!str_strm.eof()) {
-        str_strm >> temp_str; //take words into temp_str one by one
-        
-        delete_char_in_str(temp_str, '(');
-        delete_char_in_str(temp_str, ',');
-        delete_char_in_str(temp_str, ')');
+            if(stringstream(temp_str) >> temp_int) { //try to convert string to int
+                encrypt_value(context, temp_int, public_key, fhe_file_out);
 
-        if(stringstream(temp_str) >> temp_int) { //try to convert string to int
-            encrypt_value(context, temp_int, public_key, fhe_file_out); 
-            
-            pos = str.find(to_string(temp_int));
-            str.replace(pos, to_string(temp_int).length(), int_placeholder);
+                pos = str.find(to_string(temp_int));
+                str.replace(pos, to_string(temp_int).length(), int_placeholder);
+            }
+            temp_str = ""; //clear temp string
         }
-        temp_str = ""; //clear temp string
     }
-
-    cmd_file_out << str << endl;
+    cmd_file_out << str << endl; // write to file
     if (DEBUG)
         cout << "[DEBUG] Command after removing ints: " << str << endl;
-    getline(cin, str, '\n'); // ignore the trash until the \n
 }
 
 void read_command (SEALContext context, SecretKey secret_key, ifstream &cmd_file_in, ifstream &fhe_file_in) {

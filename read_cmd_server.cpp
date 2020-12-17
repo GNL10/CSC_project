@@ -10,7 +10,6 @@ char const *cmd_in_fname = "cmds_out_enc.txt"; //"cmds_in_enc.txt"; CHANGE TO TH
 
 char const *int_placeholder = "_int_";
 
-
 static const string CREATE_TABLE = "CREATE TABLE ";
 static const string INSERT_INTO = "INSERT INTO ";
 static const string VALUES = "VALUES ";
@@ -35,10 +34,7 @@ struct cond_info {
     list <Ciphertext> bits_num;
 };
 
-
-void delete_char_in_str (string &str, char c);
 void read_command (ifstream &cmd_file_in, ifstream &fhe_file_in);
-
 
 class Table {
     public:
@@ -54,7 +50,7 @@ class Table {
     Table::Table (string _owner, string _tablename, list <string>& _col_names) {
         owner = _owner;
         tablename = _tablename;
-        col_names = list(_col_names);
+        col_names = col_names;
         col_num = col_names.size(); // number of columns in the list
     }
 
@@ -67,8 +63,6 @@ class Table {
     }
 
 int main () {
-    bool flag = true; // set to false to close client
-
     SEALContext context = create_context();
 
     // files to write to
@@ -88,13 +82,6 @@ int main () {
     cmd_file_out.close();
     fhe_file_in.close();
     cmd_file_in.close();
-}
-
-
-void delete_char_in_str (string &str, char c) {
-    size_t pos = str.find(c);
-    if (pos != std::string::npos)
-        str.replace(pos, 1, "");
 }
 
 bool find_and_del_in_str (string &str, string str_to_find) {
@@ -121,10 +108,16 @@ list <string> read_within_commas (string str) {
     return info;
 }
 
+// TO DELETE not being used
 list <string> read_within_parenthisis (string str) {
     list<string> info;
     string token;
     size_t pos = 0;
+
+    str.erase(remove(str.begin(), str.end(), ')'), str.end());
+    str.erase(remove(str.begin(), str.end(), '('), str.end());
+
+    cout << "READ WITHIN PARENTHISIS" << str << endl;
     str.erase(remove(str.begin(), str.end(), ' '), str.end()); // erase all spaces from string
     if (find_and_del_in_str(str, "(")) {
         do {
@@ -139,9 +132,8 @@ list <string> read_within_parenthisis (string str) {
             }
         } while (find_and_del_in_str(str, ","));
     }
-    else{
+    else
         throw "FAILED: in create table no '(' was found";
-    }
     return info;
 }
 
@@ -155,8 +147,10 @@ string get_tablename (string &line) {
         }
         return tablename;
     }
-    return "ERROR";
+    else
+        throw "ERROR: get_tablename was unable to identify the table name";
 }
+
 
 struct cond_info get_one_condition (string str) {
     size_t pos = 0, pos_and = 0, pos_or = 0;
@@ -176,8 +170,6 @@ struct cond_info get_one_condition (string str) {
 
     curr_cond.erase(remove(curr_cond.begin(), curr_cond.end(),' '), curr_cond.end()); // erase all spaces from string
 
-    cout << "curr_cond : " << curr_cond << endl;
-
     if ((pos = curr_cond.find(BIGGER)) != std::string::npos) {
         condition.colname = str.substr(0, pos);
         condition.op = 1;
@@ -192,27 +184,22 @@ struct cond_info get_one_condition (string str) {
     }
     else
         throw "ERROR: get_one_condition was unable to identify >, < or =";
-    cout << "Colname : " << condition.colname << " condition : " << condition.op << endl;
     return condition;
 }
 
 void parse_conditions (string line, list<cond_info> &conditions) {
-    size_t pos = 0;
     string curr_cond;
     struct cond_info cond;
 
-    cout << "Parse conditions : " << line << endl;
     //analysing 1st condition
     conditions.push_back(get_one_condition(line));
     while (line.find(AND) != std::string::npos || line.find(OR) != std::string::npos) {
         if (find_and_del_in_str(line, AND)) {
-            cout << "Found AND condition" << endl;
             cond = get_one_condition(line);
             cond.logical_op = 1;
             conditions.push_back(cond);
         }
         else if (find_and_del_in_str(line, OR)) {
-            cout << "Found OR condition" << endl;
             cond = get_one_condition(line);
             cond.logical_op = -1;
             conditions.push_back(cond);
@@ -222,15 +209,7 @@ void parse_conditions (string line, list<cond_info> &conditions) {
 
 void read_command (ifstream &cmd_file_in, ifstream &fhe_file_in) {
     string line;
-    size_t pos = 0;
-    int val;
-    // CREATE TABLE tablename (col1name, col2name, … , colNname)
-    // INSERT INTO tablename VALUES (value1, .., valueN)
-    // DELETE linenum FROM tablename
-    // SELECT LINE linenum FROM tablename
-    // SELECT col1name, .., colNname FROM tablename WHERE col1name =|<|>value1 AND|OR col2name =|<|> value2
-    // SELECT SUM(colname) FROM tablename WHERE col1name =|<|> value AND|OR col2name =|<|> value
-
+    size_t pos;
 
     while ( getline (cmd_file_in,line)) { //run through all lines of file
         if (DEBUG)
@@ -244,7 +223,9 @@ void read_command (ifstream &cmd_file_in, ifstream &fhe_file_in) {
             if ((pos = line.find(SPACE)) != std::string::npos) {
                 tablename = line.substr(0, pos);
                 find_and_del_in_str(line, tablename + SPACE);
-                list<string> col_list = read_within_parenthisis (line); // list with column names
+                line.erase(remove(line.begin(), line.end(), ')'), line.end());
+                line.erase(remove(line.begin(), line.end(), '('), line.end());
+                list<string> col_list = read_within_commas(line);
                 // CALL FUNCTION HERE
             }
         }
@@ -254,7 +235,9 @@ void read_command (ifstream &cmd_file_in, ifstream &fhe_file_in) {
                 tablename = line.substr(0, pos);
                 find_and_del_in_str(line, tablename + SPACE);
                 if (find_and_del_in_str(line, VALUES)) {
-                    list<string> arg_list = read_within_parenthisis (line); // list with arguments in parenthisis
+                    line.erase(remove(line.begin(), line.end(), ')'), line.end());
+                    line.erase(remove(line.begin(), line.end(), '('), line.end());
+                    list<string> arg_list = read_within_commas(line);
                     // CALL FUNCTION HERE
                 }
             }
@@ -267,6 +250,7 @@ void read_command (ifstream &cmd_file_in, ifstream &fhe_file_in) {
                     linenum = stoi(line.substr(0, pos));
                     if (find_and_del_in_str(line, FROM)) { // extracting tablename
                         tablename = line;
+
                         // CALL FUNCTION HERE
                     }
 
