@@ -54,3 +54,29 @@ std::string RsaPriDecrypt(const std::string &cipher_text, const std::string &pri
  
 	return decrypt_text;
 }
+
+int main()
+{
+	// original plaintext  
+	std::string src_text = "test begin\n this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! \ntest end";
+	//src_text = "rsa test";
+ 
+	std::string decrypt_text;
+	std::string pri_key;
+
+	// Generate key pair - we already have created a pair
+    // std::string pub_key;
+	std::string pri_key;
+	/* OpensslTool::GenerateRSAKey(pub_key, pri_key);
+	printf("public key:\n");
+	printf("%s\n", pub_key.c_str());
+	printf("private key:\n");
+	printf("%s\n", pri_key.c_str()); */
+ 
+    // Private key decryption
+	decrypt_text = OpensslTool::RsaPriDecrypt(encrypt_text, pri_key);
+	printf("decrypt: len=%d\n", decrypt_text.length());
+	printf("decrypt: %s\n", decrypt_text.c_str());
+ 
+    return 0;
+}

@@ -57,7 +57,17 @@ int main()
 	//src_text = "rsa test";
  
 	std::string encrypt_text;
- 
+	std::string pub_key;
+
+	// Generate key pair - we already have created a pair
+    std::string pub_key;
+	/* std::string pri_key;
+	OpensslTool::GenerateRSAKey(pub_key, pri_key);
+	printf("public key:\n");
+	printf("%s\n", pub_key.c_str());
+	printf("private key:\n");
+	printf("%s\n", pri_key.c_str()); */
+
     // Public key encryption
 	encrypt_text = OpensslTool::RsaPubEncrypt(src_text, pub_key);
 	printf("encrypt: len=%d\n", encrypt_text.length());
