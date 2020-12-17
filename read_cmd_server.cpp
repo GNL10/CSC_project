@@ -49,7 +49,7 @@ class Table {
             return false; // insertion was not successful
         rows.push_back(row);
         return true; // insertion was successful
-}
+    }
 
 int main () {
     bool flag = true; // set to false to close client
