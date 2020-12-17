@@ -5,6 +5,9 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <list>
+#include <iterator>
+#include <math.h>
 
 using namespace seal;
 using namespace std;
