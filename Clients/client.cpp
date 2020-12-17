@@ -1,24 +1,31 @@
-#include "FHE.h"
-
-char const *PK_fname = "public_key.txt";
-char const *SK_fname = "secret_key.txt";
-
-char const *fhe_out_fname  = "fhe_to_server.txt";
-char const *fhe_in_fname  = "fhe_to_server.txt"; //"fhe_from_server.txt"; CHANGE TO THIS WHEN SERVER IS WORKING!!!
-
-char const *cmd_out_fname = "cmds_out_enc.txt";
-char const *cmd_in_fname = "cmds_out_enc.txt"; //"cmds_in_enc.txt"; CHANGE TO THIS WHEN SERVER IS WORKING!!!
-
-char const *int_placeholder = "_int_";
-
-
-static const string SELECT = "SELECT ";
-static const string LINE = "LINE ";
-static const string DELETE = "DELETE ";
+#include "../FHE.h"
+#include "../config.h"
 
 void delete_char_in_str (string &str, char c);
 void send_command (SEALContext context, PublicKey public_key, ofstream &cmd_file_out, ofstream &fhe_file_out);
 void read_command (SEALContext context, SecretKey secret_key, ifstream &cmd_file_in, ifstream &fhe_file_in);
+
+int* parseInt_toBinary(int value){
+    static int a[NUM_MAX_BITS];
+
+    for (int i = 0; value>0; i++){
+        a[i] = value%2;
+        value = value/2;
+    }
+
+    return a;
+}
+
+/*
+    int *binary_result;
+
+    binary_result = parseInt_toBinary(60);
+    bool begin = false;
+    for(int i=NUM_MAX_BITS-1; i>=0; i--){
+        if(*(binary_result+i) != 0) begin = true;
+        if(begin) cout << *(binary_result+i) << endl;
+    }
+*/
 
 int main () {
 

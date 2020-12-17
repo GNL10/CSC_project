@@ -15,7 +15,7 @@ class SealWrapperServer {
     public:
         Evaluator* _evaluator;
         RelinKeys* _relin_keys;
-        
+
         SealWrapperServer(size_t poly_modulus_degree, int plain_modulus, RelinKeys *relin_keys){
             static EncryptionParameters params(scheme_type::bfv);
 
@@ -42,6 +42,13 @@ class SealWrapperServer {
             // set backbone functionality of Seal
             static Evaluator evaluator(*ctx);
             _evaluator = &evaluator;
+        }
+
+        Ciphertext load_ciphertext(ifstream &encrypted_file) {
+            // read the encrypted file
+            Ciphertext input;
+        	input.load(*ctx, encrypted_file);
+            return input;
         }
 
 };

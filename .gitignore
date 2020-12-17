@@ -1,4 +1,4 @@
-#ignore 
+#ignore
 encrypted.txt
 build/
 CMakeFiles/
@@ -9,3 +9,4 @@ cmake_install.cmake
 Makefile
 *.pyc
 ./Clients
+*.gch
