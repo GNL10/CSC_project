@@ -8,8 +8,8 @@ void read_command (SealWrapperClient *sealClient, ifstream &cmd_file_in, ifstrea
 int main () {
     SealWrapperClient sealClient(POLY, COEFF);
     Api api;
-
-    //cout << "Files open: " << api.check_all_is_open() << endl;
+    
+    cout << "Files open: " << api.check_all_is_open() << endl;
 
     bool flag = true;
     //cout << "current file system " << std::filesystem::current_path() << endl;
