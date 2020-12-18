@@ -12,10 +12,9 @@ class SealWrapperAdmin {
         void gen_keys(){
             static SecretKey secret_key = _keygen->secret_key();
             static PublicKey public_key;
-            static RelinKeys relin_keys;
+            static Serializable<RelinKeys> relin_keys = _keygen->create_relin_keys();;
 
             _keygen->create_public_key(public_key);
-            _keygen->create_relin_keys(relin_keys);
 
             _secret_key = &secret_key;
             _public_key = &public_key;
@@ -27,7 +26,7 @@ class SealWrapperAdmin {
         int _plain_modulus;
         SEALContext* ctx;
 
-        RelinKeys* _relin_key;
+        Serializable<RelinKeys>* _relin_key;
         SecretKey* _secret_key;
         PublicKey* _public_key;
 
