@@ -24,7 +24,7 @@ int main(){
                 break;
             case 2:
                 // Generate FHE keys
-                admin.gen_and_upload_keys(SK_fname, PK_fname);
+                admin.gen_and_upload_keys(SK_fname, PK_fname, RK_fname);
                 break;
             case 3:
                 flag = false;

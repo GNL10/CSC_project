@@ -1,7 +1,7 @@
 #ifndef API_H
 #define API_H
 
-#include "client.h"
+#include "server.h"
 
 class Api{
     public:
@@ -9,8 +9,8 @@ class Api{
         ifstream fhe_in, cmd_in;
 
         Api(){
-            fhe_out.open ("../../server/" + string(fhe_out_fname), ios::binary | ofstream::app);
-            cmd_out.open("../../server/" + string(cmd_out_fname), ios::binary | ios_base::app);
+            fhe_out.open ("../server" + string(fhe_out_fname), ios::binary | ofstream::app);
+            cmd_out.open("../server" + string(cmd_out_fname), ios::binary | ios_base::app);
 
             fhe_in.open (fhe_in_fname, ios::binary | ofstream::app);
             cmd_in.open(cmd_in_fname, ios::binary | ios_base::app);

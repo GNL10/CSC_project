@@ -54,12 +54,13 @@ class SealWrapperAdmin {
 
             KeyGenerator keygen(*ctx);
             _keygen = &keygen;
+            gen_keys();
         }
 
-        void gen_and_upload_keys(const char *secret_key_fname, const char *public_key_fname) {
-            gen_keys();
+        void gen_and_upload_keys(const char *secret_key_fname, const char *public_key_fname, const char *relin_key_fname) {
             upload_SK_to_file(secret_key_fname);
             upload_PK_to_file(public_key_fname);
+            upload_RK_to_file(relin_key_fname);
         }
 
         void upload_SK_to_file(const char *secret_key_fname) {
@@ -76,15 +77,12 @@ class SealWrapperAdmin {
             public_key_f.close();
         }
 
-        /*
-        void gen_new_keys(){
-            delete (*_secret_key);
-            delete (*_public_key);
-            delete (*_relin_key);
-
-            gen_keys();
+        void upload_RK_to_file(const char *relin_key_fname) {
+            ofstream relin_key_f;
+            relin_key_f.open(relin_key_fname, ios::binary);
+            _relin_key->save(relin_key_f, compr_mode_type::none);
+            relin_key_f.close();
         }
-        */
 };
 
 #endif

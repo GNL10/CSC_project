@@ -1,23 +1,21 @@
-#include "seal_client_interface.h"
 #include "seal_server_interface.h"
 #include "comparator.h"
 #include "table.h"
 #include "read_cmd_server.h"
 
 int main(){
-    SealWrapperClient sealClient((size_t)32768, 881); // TODELETE
-    SealWrapperServer sealServer(POLY, COEFF, sealClient._relin_key);
-    Comparator comparator(sealServer._evaluator, sealServer._relin_keys);
+    SealWrapperServer sealServer(POLY, COEFF, RK_fname);
+    Comparator comparator(sealServer._evaluator, sealServer._relin_key);
 
     // files to write to
     ofstream fhe_file_out, cmd_file_out;
-    fhe_file_out.open(fhe_out_fname, ios::binary);
-    cmd_file_out.open(cmd_out_fname, ios::binary);
+    fhe_file_out.open(fhe_in_fname, ios::binary);
+    cmd_file_out.open(cmd_in_fname, ios::binary);
 
     // files to read from
     ifstream fhe_file_in, cmd_file_in;
-    fhe_file_in.open(fhe_in_fname, ios::binary);
-    cmd_file_in.open(cmd_in_fname, ios::binary);
+    fhe_file_in.open("../client/client0/" + string(fhe_out_fname), ios::binary);
+    cmd_file_in.open("../client/client0/" + string(cmd_out_fname), ios::binary);
 
     read_command(cmd_file_in, fhe_file_in);
 

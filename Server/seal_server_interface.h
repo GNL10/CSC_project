@@ -14,9 +14,9 @@ class SealWrapperServer {
 
     public:
         Evaluator* _evaluator;
-        RelinKeys* _relin_keys;
+        RelinKeys* _relin_key;
 
-        SealWrapperServer(size_t poly_modulus_degree, int plain_modulus, RelinKeys *relin_keys){
+        SealWrapperServer(size_t poly_modulus_degree, int plain_modulus, const char *relin_key_fname){
             static EncryptionParameters params(scheme_type::bfv);
 
             _poly_modulus_degree = poly_modulus_degree;
@@ -37,8 +37,7 @@ class SealWrapperServer {
             static SEALContext context(*_params);
             ctx = &context;
 
-            _relin_keys = relin_keys;
-
+            load_RK_from_file(relin_key_fname);
             // set backbone functionality of Seal
             static Evaluator evaluator(*ctx);
             _evaluator = &evaluator;
@@ -49,6 +48,20 @@ class SealWrapperServer {
             Ciphertext input;
         	input.load(*ctx, encrypted_file);
             return input;
+        }
+
+        void load_RK_from_file(const char *relin_key_fname) {
+            //read public key
+            ifstream relin_key_f;
+
+        	relin_key_f.open(relin_key_fname, ios::binary);
+            cout << "AFTER OPENING RK" << endl;
+        	_relin_key->load(*ctx, relin_key_f);
+            cout << "AFTER LOADING RK" << endl;
+        	relin_key_f.close();
+
+            if (DEBUG)
+                cout << "[DEBUG] Loaded Public Key from file: " << relin_key_fname << endl;
         }
 
 };
