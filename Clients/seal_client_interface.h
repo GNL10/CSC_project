@@ -19,10 +19,8 @@ class SealWrapperClient {
 
         SEALContext* ctx;
 
-        Evaluator* _evaluator;
         Encryptor* _encryptor;
 
-        RelinKeys* _relin_key;
         PublicKey* _public_key;
         SecretKey* _secret_key;
 
@@ -47,33 +45,15 @@ class SealWrapperClient {
             static SEALContext context(*_params);
             ctx = &context;
 
-            // load_SK_from_file(SK_fname);
-            // load_PK_from_file(PK_fname);
-            // load_RK_from_file(RK_fname);
-
-            // comentar no fim
-            KeyGenerator keygen(*ctx);
-            _keygen = &keygen;
-            static SecretKey secret_key = _keygen->secret_key();
-            static PublicKey public_key;
-            static RelinKeys relin_keys;
-
-            _keygen->create_public_key(public_key);
-            _keygen->create_relin_keys(relin_keys);
-
-            _secret_key = &secret_key;
-            _public_key = &public_key;
-            _relin_key = &relin_keys;
-            //
+            load_SK_from_file(SK_fname);
+            load_PK_from_file(PK_fname);
 
             // set backbone functionality of Seal
             static Encryptor encryptor(*ctx, *_public_key);
             static Decryptor decryptor(*ctx, *_secret_key);
-            static Evaluator evaluator(*ctx);
 
             _encryptor = &encryptor;
             _decryptor = &decryptor;
-            _evaluator = &evaluator;
         }
 
         Ciphertext encrypt(int input){
@@ -104,6 +84,7 @@ class SealWrapperClient {
         void load_SK_from_file(const char *secret_key_fname) {
             // read secret key
             ifstream secret_key_f;
+            _secret_key = new SecretKey();
             secret_key_f.open(secret_key_fname, ios::binary);
         	_secret_key->load(*ctx, secret_key_f);
         	secret_key_f.close();
@@ -114,23 +95,13 @@ class SealWrapperClient {
         void load_PK_from_file(const char *public_key_fname) {
             //read public key
             ifstream public_key_f;
+            _public_key = new PublicKey();
         	public_key_f.open(public_key_fname);
         	_public_key->unsafe_load(*ctx, public_key_f);
         	public_key_f.close();
 
             if (DEBUG)
                 cout << "[DEBUG] Loaded Public Key from file: " << public_key_fname << endl;
-        }
-
-        void load_RK_from_file(const char *relin_key_fname) {
-            //read public key
-            ifstream relin_key_f;
-        	relin_key_f.open(relin_key_fname);
-        	_relin_key->unsafe_load(*ctx, relin_key_f);
-        	relin_key_f.close();
-
-            if (DEBUG)
-                cout << "[DEBUG] Loaded Public Key from file: " << relin_key_fname << endl;
         }
 
         void encrypt_and_save(int value, ofstream &encrypted_file) {

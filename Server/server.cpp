@@ -14,9 +14,9 @@ int main(){
 
     // files to read from
     ifstream fhe_file_in, cmd_file_in;
-    fhe_file_in.open("../client/client0/" + string(fhe_out_fname), ios::binary);
-    cmd_file_in.open("../client/client0/" + string(cmd_out_fname), ios::binary);
-
+    fhe_file_in.open(fhe_out_fname, ios::binary);
+    cmd_file_in.open("cmds_out_enc.txt", ios::binary);
+    
     read_command(cmd_file_in, fhe_file_in);
 
     fhe_file_out.close();

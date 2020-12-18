@@ -53,11 +53,10 @@ class SealWrapperServer {
         void load_RK_from_file(const char *relin_key_fname) {
             //read public key
             ifstream relin_key_f;
+            _relin_key = new RelinKeys();
 
         	relin_key_f.open(relin_key_fname, ios::binary);
-            cout << "AFTER OPENING RK" << endl;
-        	_relin_key->load(*ctx, relin_key_f);
-            cout << "AFTER LOADING RK" << endl;
+            _relin_key->load(*ctx, relin_key_f);
         	relin_key_f.close();
 
             if (DEBUG)

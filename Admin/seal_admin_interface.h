@@ -79,7 +79,7 @@ class SealWrapperAdmin {
         void upload_RK_to_file(const char *relin_key_fname) {
             ofstream relin_key_f;
             relin_key_f.open(relin_key_fname, ios::binary);
-            _relin_key->save(relin_key_f, compr_mode_type::none);
+            _relin_key->save(relin_key_f, compr_mode_type::zlib);//compr_mode_type::none);
             relin_key_f.close();
         }
 };
