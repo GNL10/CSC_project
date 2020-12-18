@@ -5,8 +5,8 @@
 #include "read_cmd_server.h"
 
 int main(){
-    SealWrapperClient sealClient((size_t)32768, 881);
-    SealWrapperServer sealServer(sealClient._poly_modulus_degree, sealClient._plain_modulus, sealClient._relin_key);
+    SealWrapperClient sealClient((size_t)32768, 881); // TODELETE
+    SealWrapperServer sealServer(POLY, COEFF, sealClient._relin_key);
     Comparator comparator(sealServer._evaluator, sealServer._relin_keys);
 
     // files to write to

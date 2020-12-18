@@ -14,3 +14,6 @@ target_link_libraries(client SEAL::seal)
 
 add_executable(server Server/server.cpp  Server/read_cmd_server.cpp FHE.cpp)
 target_link_libraries(server SEAL::seal)
+
+add_executable(admin Admin/admin.cpp)
+target_link_libraries(admin SEAL::seal)

@@ -1,26 +1,17 @@
 #include "seal_admin_interface.h"
-#include "admin_security.h"
 #include "utils.h"
 
 int main(){
-    SealWrapperAdmin admin((size_t)32768, 881, SK_fname, PK_fname);
-    AdminSecurity adminSec();
-
-    ofstream fhe_file_out, cmd_file_out;
-    fhe_file_out.open(fhe_out_fname, ios::binary | std::ios_base::app); // append instead of overwrite
-    cmd_file_out.open(cmd_out_fname, ios::binary | std::ios_base::app); // append instead of overwrite
-
+    SealWrapperAdmin admin (POLY, COEFF);
     bool flag = true;
 
     while (flag) {
         string input;
-        cout << "\n\n\tAdmin: Olá António Grilo ( ͡ᵔ ͜ʖ ͡ᵔ )\n\n" << endl;
-        cout << "\t¯\\_(ツ)_/¯ ¯\\_(ツ)_/¯ ¯\\_(ツ)_/¯ ¯\\_(ツ)_/¯\n" << endl;
         cout << "\n\tThis is the Options Menu\n"<< endl;
-        // cout << "- PRESS 1 to create keys" << endl;
-        cout << "\t (⚆ _ ⚆ ) PRESS 1 to create clients" << endl;
-        cout << "\t (⚆ _ ⚆ ) PRESS 2 to quit\n\n\n  Choice: ";
-        
+        cout << "\t PRESS 1 to create RSA keys" << endl;
+        cout << "\t PRESS 2 to create FHE keys" << endl;
+        cout << "\t PRESS 3 to quit\n\n\n  Choice: ";
+
         getline(cin, input);
 
         int i = 0;
@@ -32,6 +23,10 @@ int main(){
                 system("../../admin.sh");
                 break;
             case 2:
+                // Generate FHE keys
+                admin.gen_and_upload_keys(SK_fname, PK_fname);
+                break;
+            case 3:
                 flag = false;
                 break;
             default:
@@ -40,9 +35,5 @@ int main(){
 
         }
     }
-
-    fhe_file_out.close();
-    cmd_file_out.close();
-
+    return 0;
 }
-

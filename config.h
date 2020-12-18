@@ -1,9 +1,13 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
 
-#include "server.h"
+using namespace std;
 
+#define DEBUG 0
 #define NUM_MAX_BITS 8
+
+static size_t POLY = 32768;
+static int COEFF = 881;
 
 static const char *PK_fname = "public_key.txt";
 static const char *SK_fname = "secret_key.txt";

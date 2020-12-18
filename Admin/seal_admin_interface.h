@@ -2,7 +2,6 @@
 #define SEAL_ADMIN_INTERFACE_H
 
 #include "admin.h"
-#include "admin.h"
 
 class SealWrapperAdmin {
     private:
@@ -14,7 +13,7 @@ class SealWrapperAdmin {
             static SecretKey secret_key = _keygen->secret_key();
             static PublicKey public_key;
             static RelinKeys relin_keys;
-            
+
             _keygen->create_public_key(public_key);
             _keygen->create_relin_keys(relin_keys);
 
@@ -32,8 +31,7 @@ class SealWrapperAdmin {
         SecretKey* _secret_key;
         PublicKey* _public_key;
 
-        SealWrapperAdmin(size_t poly_modulus_degree, int plain_modulus, \
-                        const char *secret_key_fname, const char *public_key_fname){
+        SealWrapperAdmin(size_t poly_modulus_degree, int plain_modulus){
 
             static EncryptionParameters params(scheme_type::bfv);
             _poly_modulus_degree = poly_modulus_degree;
@@ -56,12 +54,12 @@ class SealWrapperAdmin {
 
             KeyGenerator keygen(*ctx);
             _keygen = &keygen;
-            
-            gen_keys();
+        }
 
+        void gen_and_upload_keys(const char *secret_key_fname, const char *public_key_fname) {
+            gen_keys();
             upload_SK_to_file(secret_key_fname);
             upload_PK_to_file(public_key_fname);
-            
         }
 
         void upload_SK_to_file(const char *secret_key_fname) {
@@ -76,7 +74,7 @@ class SealWrapperAdmin {
             public_key_f.open(public_key_fname, ios::binary);
             _public_key->save(public_key_f);
             public_key_f.close();
-        }  
+        }
 
         /*
         void gen_new_keys(){

@@ -1,18 +1,19 @@
 #include "seal_client_interface.h"
 #include "api.h"
+#include <filesystem> // TODO CHANGE
 
 void delete_char_in_str (string &str, char c);
 void send_command (SealWrapperClient *sealClient, ofstream &cmd_file_out, ofstream &fhe_file_out);
 void read_command (SealWrapperClient *sealClient, ifstream &cmd_file_in, ifstream &fhe_file_in);
 
 int main () {
-    SealWrapperClient sealClient((size_t)32768, 881);
+    SealWrapperClient sealClient(POLY, COEFF);
     Api api;
 
-    cout << "Files open: " << api.check_all_is_open() << endl;
-    
-    bool flag = true;
+    //cout << "Files open: " << api.check_all_is_open() << endl;
 
+    bool flag = true;
+    //cout << "current file system " << std::filesystem::current_path() << endl;
     while (flag) {
         string input;
         cout << "\nThis is the Options Menu:\n" << endl;
@@ -39,7 +40,7 @@ int main () {
                 cout << "ERROR: Input value not valid!";
         }
     }
-    
+
 }
 
 void delete_char_in_str (string &str, char c) {
@@ -96,4 +97,3 @@ void read_command (SealWrapperClient *sealClient, ifstream &cmd_file_in, ifstrea
         cout << line << endl;
     }
 }
-

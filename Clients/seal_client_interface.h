@@ -2,12 +2,13 @@
 #define SEAL_CLIENT_INTERFACE_H
 
 #include "client.h"
+#include "../config.h"
 
 class SealWrapperClient {
     private:
         vector<Modulus> _coeff_modulus;
         EncryptionParameters* _params;
-        
+
     protected:
         KeyGenerator* _keygen;
         Decryptor* _decryptor;
@@ -15,7 +16,7 @@ class SealWrapperClient {
     public:
         size_t _poly_modulus_degree;
         int _plain_modulus;
-        
+
         SEALContext* ctx;
 
         Evaluator* _evaluator;
@@ -45,7 +46,7 @@ class SealWrapperClient {
 
             static SEALContext context(*_params);
             ctx = &context;
-            
+
             // load_SK_from_file(SK_fname);
             // load_PK_from_file(PK_fname);
             // load_RK_from_file(RK_fname);
@@ -56,7 +57,7 @@ class SealWrapperClient {
             static SecretKey secret_key = _keygen->secret_key();
             static PublicKey public_key;
             static RelinKeys relin_keys;
-            
+
             _keygen->create_public_key(public_key);
             _keygen->create_relin_keys(relin_keys);
 

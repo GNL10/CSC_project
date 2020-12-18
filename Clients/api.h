@@ -7,13 +7,13 @@ class Api{
     public:
         ofstream fhe_out, cmd_out;
         ifstream fhe_in, cmd_in;
-        
-        Api(){
-            fhe_out.open (FHE_OUT_FNAME, ios::binary | ofstream::app);
-            cmd_out.open(CMD_OUT_FNAME, ios::binary | ios_base::app);
 
-            fhe_in.open (FHE_IN_FNAME, ios::binary | ofstream::app);
-            cmd_in.open(CMD_IN_FNAME, ios::binary | ios_base::app);
+        Api(){
+            fhe_out.open (fhe_out_fname, ios::binary | ofstream::app);
+            cmd_out.open(cmd_out_fname, ios::binary | ios_base::app);
+
+            fhe_in.open (fhe_in_fname, ios::binary | ofstream::app);
+            cmd_in.open(cmd_in_fname, ios::binary | ios_base::app);
         }
 
         ~Api(){
