@@ -1,17 +1,13 @@
 #ifndef SEAL_CLIENT_INTERFACE_H
 #define SEAL_CLIENT_INTERFACE_H
 
-#include "server.h"
+#include "client.h"
 
 class SealWrapperClient {
     private:
         vector<Modulus> _coeff_modulus;
-
         EncryptionParameters* _params;
-        SEALContext* ctx;
-        SecretKey* _secret_key;
-        PublicKey* _public_key;
-
+        
     protected:
         KeyGenerator* _keygen;
         Decryptor* _decryptor;
@@ -19,12 +15,17 @@ class SealWrapperClient {
     public:
         size_t _poly_modulus_degree;
         int _plain_modulus;
+        
+        SEALContext* ctx;
 
         Evaluator* _evaluator;
         Encryptor* _encryptor;
-        RelinKeys* _relin_key;
 
-        SealWrapperClient(size_t poly_modulus_degree, int plain_modulus = 1024){
+        RelinKeys* _relin_key;
+        PublicKey* _public_key;
+        SecretKey* _secret_key;
+
+        SealWrapperClient(size_t poly_modulus_degree, int plain_modulus){
             static EncryptionParameters params(scheme_type::bfv);
 
             _poly_modulus_degree = poly_modulus_degree;
@@ -44,17 +45,30 @@ class SealWrapperClient {
 
             static SEALContext context(*_params);
             ctx = &context;
+            
+            // load_SK_from_file(SK_fname);
+            // load_PK_from_file(PK_fname);
+            // load_RK_from_file(RK_fname);
 
+            // comentar no fim
+            KeyGenerator keygen(*ctx);
+            _keygen = &keygen;
+            static SecretKey secret_key = _keygen->secret_key();
+            static PublicKey public_key;
+            static RelinKeys relin_keys;
+            
+            _keygen->create_public_key(public_key);
+            _keygen->create_relin_keys(relin_keys);
 
+            _secret_key = &secret_key;
+            _public_key = &public_key;
+            _relin_key = &relin_keys;
+            //
 
             // set backbone functionality of Seal
             static Encryptor encryptor(*ctx, *_public_key);
             static Decryptor decryptor(*ctx, *_secret_key);
             static Evaluator evaluator(*ctx);
-
-            static RelinKeys relin_keys;
-            _keygen->create_relin_keys(relin_keys);
-            _relin_key = &relin_keys;
 
             _encryptor = &encryptor;
             _decryptor = &decryptor;
@@ -68,7 +82,7 @@ class SealWrapperClient {
             return input_encrypted;
         }
 
-        Ciphertext encrypt_fromPlaintext(Plaintext input){
+        Ciphertext encrypt_from_plain(Plaintext input){
             Ciphertext input_encrypted;
             _encryptor->encrypt(input, input_encrypted);
             return input_encrypted;
@@ -80,21 +94,12 @@ class SealWrapperClient {
             return input_decrypted;
         }
 
-        string decrypt_toString(Ciphertext input){
+        string decrypt_to_string(Ciphertext input){
             Plaintext input_decrypted;
             _decryptor->decrypt(input, input_decrypted);
             return input_decrypted.to_string();
         }
 
-        EncryptionParameters getParams(){ return *_params; }
-        PublicKey getPublicKey(){ return *_public_key; }
-
-        /**
-         * Reads the file the the secret key and returns it in SecretKey type
-         * @param context Context of SEAL
-         * @param secret_key_fname Name of the file containing the secret key
-         * @return Secret Key
-         */
         void load_SK_from_file(const char *secret_key_fname) {
             // read secret key
             ifstream secret_key_f;
@@ -116,7 +121,18 @@ class SealWrapperClient {
                 cout << "[DEBUG] Loaded Public Key from file: " << public_key_fname << endl;
         }
 
-        void encrypt_value(int value, ofstream &encrypted_file) {
+        void load_RK_from_file(const char *relin_key_fname) {
+            //read public key
+            ifstream relin_key_f;
+        	relin_key_f.open(relin_key_fname);
+        	_relin_key->unsafe_load(*ctx, relin_key_f);
+        	relin_key_f.close();
+
+            if (DEBUG)
+                cout << "[DEBUG] Loaded Public Key from file: " << relin_key_fname << endl;
+        }
+
+        void encrypt_and_save(int value, ofstream &encrypted_file) {
             stringstream val_hex;
             val_hex << std::hex << value;
             Plaintext x_plain(val_hex.str());
@@ -131,7 +147,7 @@ class SealWrapperClient {
                 cout << "[DEBUG] Encrypted value   -> \tdecimal: " << to_string(value) << " \t hex: " << val_hex.str() << endl;
         }
 
-        int decrypt_value(ifstream &encrypted_file) {
+        int decrypt_from_file(ifstream &encrypted_file) {
             // read the encrypted file
             Ciphertext input;
 
@@ -145,6 +161,9 @@ class SealWrapperClient {
             return (int)strtol(x_decrypted.to_string().c_str(), NULL, 16);
         }
 
+        EncryptionParameters getParams(){ return *_params; }
+
+        PublicKey getPublicKey(){ return *_public_key; }
 };
 
 #endif

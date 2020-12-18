@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef SERVER_H
-#define SERVER_H
+#ifndef CLIENT_H
+#define CLIENT_H
 
 #include "seal/seal.h"
 #include <iostream>
@@ -13,29 +13,22 @@
 #include <math.h>
 #include <fstream>
 
-#define NUM_MAX_BITS 8
 #define DEBUG 0
 
 using namespace seal;
 using namespace std;
 
-typedef struct _CondInfo{
-    string colname;
-    int op; // -1 for <    0 for =    1 for >
-    int logical_op; // -1 for OR   1 for AND
-    Ciphertext full_num;
-    list <Ciphertext> bits_num;
-} CondInfo;
+#define NUM_MAX_BITS 8
 
-static const char *PK_fname = "public_key.txt";
-static const char *SK_fname = "secret_key.txt";
-static const char *RK_fname = "relin_key.txt";
+static const char *PK_fname = "./files/keys/public_key.txt";
+static const char *SK_fname = "./files/keys/secret_key.txt";
+static const char *RK_fname = "./files/keys/relin_key.txt";
 
-static const char *fhe_out_fname  = "fhe_to_server.txt";
-static const char *fhe_in_fname  = "fhe_to_server.txt"; //"fhe_from_server.txt"; CHANGE TO THIS WHEN SERVER IS WORKING!!!
+static const string FHE_OUT_FNAME  = "../files/com/fhe_to_server.txt";
+static const string FHE_IN_FNAME  = "../files/com/fhe_from_server.txt";
 
-static const char *cmd_out_fname = "cmds_out_enc.txt";
-static const char *cmd_in_fname = "cmds_out_enc.txt"; //"cmds_in_enc.txt"; CHANGE TO THIS WHEN SERVER IS WORKING!!!
+static const string CMD_OUT_FNAME = "../files/com/cmds_out_enc.txt";
+static const string CMD_IN_FNAME = "../files/com/cmds_in_enc.txt";
 
 static const char *int_placeholder = "_int_";
 

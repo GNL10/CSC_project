@@ -1,18 +1,13 @@
+#include "seal_client_interface.h"
 #include "seal_server_interface.h"
 #include "comparator.h"
 #include "table.h"
 #include "read_cmd_server.h"
 
-void read_command (ifstream &cmd_file_in, ifstream &fhe_file_in);
-
 int main(){
-    //SealWrapperClient sealClient((size_t)32768, 881);
-
-    //SealWrapperServer sealServer((size_t)32768, 881, sealClient._relin_key);
-    //Comparator comparator(sealServer._evaluator, sealServer._relin_keys);
-
-
-    SEALContext context = create_context();
+    SealWrapperClient sealClient((size_t)32768, 881);
+    SealWrapperServer sealServer(sealClient._poly_modulus_degree, sealClient._plain_modulus, sealClient._relin_key);
+    Comparator comparator(sealServer._evaluator, sealServer._relin_keys);
 
     // files to write to
     ofstream fhe_file_out, cmd_file_out;
@@ -26,7 +21,6 @@ int main(){
 
     read_command(cmd_file_in, fhe_file_in);
 
-
     fhe_file_out.close();
     cmd_file_out.close();
     fhe_file_in.close();
@@ -34,7 +28,6 @@ int main(){
     return 0;
 
 }
-
 
 void read_command (ifstream &cmd_file_in, ifstream &fhe_file_in) {
     string line;
