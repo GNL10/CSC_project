@@ -1,6 +1,5 @@
 #include "seal_client_interface.h"
 #include "api.h"
-#include <filesystem> // TODO CHANGE
 
 void delete_char_in_str (string &str, char c);
 void send_command (SealWrapperClient *sealClient, ofstream &cmd_file_out, ofstream &fhe_file_out);
