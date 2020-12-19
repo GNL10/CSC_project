@@ -11,6 +11,8 @@ int main(){
     ServerParseCmd parser;
     Api api;
 
+
+
     if(DEBUG) cout << "[DEBUG] Files open: " << api.check_all_is_open() << endl;
 
     FileWatcher fw{"./", chrono::milliseconds(2000)};
@@ -25,30 +27,32 @@ int main(){
 
         switch(status) {
             case FileStatus::created:
-                std::cout << "File created: " << path_to_watch << '\n';
 
                 if(path_to_watch.compare("./" + string(RK_fname)) == 0 ){
+                    std::cout << "File created: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::RK::" << '\n';
                     sealServer.load_RK_from_file(RK_fname);
                 }
 
                 if(path_to_watch.compare("./" + string(cmd_out_fname)) == 0 ){
+                    std::cout << "File created: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    parser.read_command(&db ,api.cmd_in, api.fhe_in);
+                    parser.read_command(&db ,api.cmd_in, api.fhe_in, sealServer);
                 }
 
                 break;
             case FileStatus::modified:
-                std::cout << "File modified: " << path_to_watch << '\n';
 
                 if(path_to_watch.compare("./" + string(RK_fname)) == 0 ){
+                    std::cout << "File modified: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::RK::" << '\n';
                     sealServer.load_RK_from_file(RK_fname);
                 }
 
                 if(path_to_watch.compare("./" + string(cmd_out_fname)) == 0 ){
+                    std::cout << "File modified: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    parser.read_command(&db ,api.cmd_in, api.fhe_in);
+                    parser.read_command(&db ,api.cmd_in, api.fhe_in, sealServer);
                 }
 
                 break;

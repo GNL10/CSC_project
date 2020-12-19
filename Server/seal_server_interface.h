@@ -1,3 +1,4 @@
+
 #pragma once
 
 #ifndef SEAL_SERVER_INTERFACE_H
@@ -38,7 +39,7 @@ class SealWrapperServer {
 
             static SEALContext context(*_params);
             ctx = &context;
-            
+
             // set backbone functionality of Seal
             static Evaluator evaluator(*ctx);
             _evaluator = &evaluator;

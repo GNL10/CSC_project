@@ -4,6 +4,8 @@
 #include "client.h"
 #include "../config.h"
 
+#include <bitset>
+
 class SealWrapperClient {
     private:
         vector<Modulus> _coeff_modulus;
@@ -110,7 +112,7 @@ class SealWrapperClient {
             }catch(std::exception const& e){
                 cout << "There was an error loading de PK from file: " << e.what() << endl;
             }
-            
+
         }
 
         void encrypt_and_save(int value, ofstream &encrypted_file) {
@@ -124,9 +126,26 @@ class SealWrapperClient {
 
             // write encrypted values to output files
             x_encrypted.save(encrypted_file);
+
+            std::string binary = std::bitset<NUM_MAX_BITS>(value).to_string(); //to binary
+            encrypt_and_save_binary(binary, encrypted_file);
             if (DEBUG)
-                cout << "[DEBUG] Encrypted value   -> \tdecimal: " << to_string(value) << " \t hex: " << val_hex.str() << endl;
+                cout << "[DEBUG] Encrypted value   -> \tdecimal: " << to_string(value) << " \t hex: " << val_hex.str() << " \t bin: " << binary << endl;
         }
+
+        void encrypt_and_save_binary (string binary, ofstream &encrypted_file) {
+            for (char const &c: binary) {
+                Plaintext x_plain(c);
+
+                // Encrypt the information
+                Ciphertext x_encrypted;
+                _encryptor->encrypt(x_plain, x_encrypted);
+
+                // write encrypted values to output files
+                x_encrypted.save(encrypted_file);
+            }
+        }
+
 
         int decrypt_from_file(ifstream &encrypted_file) {
             // read the encrypted file

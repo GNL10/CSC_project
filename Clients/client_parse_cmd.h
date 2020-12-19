@@ -4,7 +4,7 @@
 class ClientParseCmd{
 
     public:
-    
+
         void delete_char_in_str (string &str, char c) {
             size_t pos = str.find(c);
             if (pos != std::string::npos)
@@ -32,6 +32,7 @@ class ClientParseCmd{
 
                     if(stringstream(temp_str) >> temp_int) { //try to convert string to int
                         sealClient->encrypt_and_save(temp_int,fhe_file_out);
+
                         pos = str.find(to_string(temp_int));
                         str.replace(pos, to_string(temp_int).length(), int_placeholder);
                     }

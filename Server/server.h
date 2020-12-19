@@ -24,6 +24,7 @@ using namespace seal;
 using namespace std;
 
 namespace fs = std::experimental::filesystem;
+
 typedef struct _CondInfo{
     string colname;
     int op; // -1 for <    0 for =    1 for >
@@ -31,6 +32,5 @@ typedef struct _CondInfo{
     Ciphertext full_num;
     list <Ciphertext> bits_num;
 } CondInfo;
-
 
 #endif
