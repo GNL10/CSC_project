@@ -82,26 +82,35 @@ class SealWrapperClient {
         }
 
         void load_SK_from_file(const char *secret_key_fname) {
-            // read secret key
-            ifstream secret_key_f;
-            _secret_key = new SecretKey();
-            secret_key_f.open(secret_key_fname, ios::binary);
-        	_secret_key->load(*ctx, secret_key_f);
-        	secret_key_f.close();
-            if (DEBUG)
-                cout << "[DEBUG] Loaded Secret Key from file: " << secret_key_fname << endl;
+            try{
+                ifstream secret_key_f;
+                _secret_key = new SecretKey();
+                secret_key_f.open(secret_key_fname, ios::binary);
+                _secret_key->load(*ctx, secret_key_f);
+                secret_key_f.close();
+
+                if (DEBUG)
+                    cout << "[DEBUG] Loaded Secret Key from file: " << secret_key_fname << endl;
+            }catch(std::exception const& e){
+                cout << "There was an error loading de SK from file: " << e.what() << endl;
+            }
         }
 
         void load_PK_from_file(const char *public_key_fname) {
-            //read public key
-            ifstream public_key_f;
-            _public_key = new PublicKey();
-        	public_key_f.open(public_key_fname);
-        	_public_key->unsafe_load(*ctx, public_key_f);
-        	public_key_f.close();
+            try{
+                //read public key
+                ifstream public_key_f;
+                _public_key = new PublicKey();
+                public_key_f.open(public_key_fname);
+                _public_key->unsafe_load(*ctx, public_key_f);
+                public_key_f.close();
 
-            if (DEBUG)
-                cout << "[DEBUG] Loaded Public Key from file: " << public_key_fname << endl;
+                if (DEBUG)
+                    cout << "[DEBUG] Loaded Public Key from file: " << public_key_fname << endl;
+            }catch(std::exception const& e){
+                cout << "There was an error loading de PK from file: " << e.what() << endl;
+            }
+            
         }
 
         void encrypt_and_save(int value, ofstream &encrypted_file) {

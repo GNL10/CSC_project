@@ -3,7 +3,12 @@
 
 int main(){
     SealWrapperAdmin admin (POLY, COEFF);
+    Utils utils;
+
     bool flag = true;
+
+    vector<string> files_to_client = {SK_fname, PK_fname};
+    vector<string> files_to_server = {RK_fname};
 
     while (flag) {
         string input;
@@ -16,24 +21,26 @@ int main(){
 
         int i = 0;
         std::istringstream(input) >> i;
-
+        
         switch (i) {
             case 1:
                 // create clients
                 system("../../admin.sh");
                 break;
             case 2:
-                // Generate FHE keys
+                // create homomorphic keys
                 admin.gen_and_upload_keys(SK_fname, PK_fname, RK_fname);
+                // populate key for server and all clients
+                utils.send_files_to_client(files_to_client);
+                utils.send_files_to_server(files_to_server);
                 break;
             case 3:
                 flag = false;
                 break;
             default:
                 cout << "\n\nTenta outra vez ¯\\_(ツ)_/¯\n\n";
-                system("clear");
-
         }
+        system("clear");
     }
     return 0;
 }

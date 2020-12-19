@@ -14,6 +14,12 @@
 #include <fstream>
 #include <experimental/filesystem>
 
+namespace fs = std::experimental::filesystem;
+#include <chrono>
+#include <thread>
+#include <unordered_map>
+#include <functional>
+
 using namespace seal;
 using namespace std;
 

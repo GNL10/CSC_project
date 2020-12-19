@@ -3,11 +3,14 @@
 
 using namespace std;
 
-#define DEBUG 0
+#define DEBUG 1
 #define NUM_MAX_BITS 8
+#define CLI_NUM 4
 
 static size_t POLY = 32768;
 static int COEFF = 881;
+
+static const char *TEST_fname = "../client/client0/test.txt";
 
 static const char *PK_fname = "public_key.txt";
 static const char *SK_fname = "secret_key.txt";

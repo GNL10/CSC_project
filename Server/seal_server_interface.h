@@ -16,7 +16,7 @@ class SealWrapperServer {
         Evaluator* _evaluator;
         RelinKeys* _relin_key;
 
-        SealWrapperServer(size_t poly_modulus_degree, int plain_modulus, const char *relin_key_fname){
+        SealWrapperServer(size_t poly_modulus_degree, int plain_modulus) {
             static EncryptionParameters params(scheme_type::bfv);
 
             _poly_modulus_degree = poly_modulus_degree;
@@ -36,8 +36,7 @@ class SealWrapperServer {
 
             static SEALContext context(*_params);
             ctx = &context;
-
-            load_RK_from_file(relin_key_fname);
+            
             // set backbone functionality of Seal
             static Evaluator evaluator(*ctx);
             _evaluator = &evaluator;
@@ -51,16 +50,19 @@ class SealWrapperServer {
         }
 
         void load_RK_from_file(const char *relin_key_fname) {
-            //read public key
-            ifstream relin_key_f;
-            _relin_key = new RelinKeys();
+            try{
+                ifstream relin_key_f;
+                _relin_key = new RelinKeys();
 
-        	relin_key_f.open(relin_key_fname, ios::binary);
-            _relin_key->load(*ctx, relin_key_f);
-        	relin_key_f.close();
+                relin_key_f.open(relin_key_fname, ios::binary);
+                _relin_key->load(*ctx, relin_key_f);
+                relin_key_f.close();
 
-            if (DEBUG)
-                cout << "[DEBUG] Loaded Public Key from file: " << relin_key_fname << endl;
+                if (DEBUG)
+                    cout << "[DEBUG] Loaded Relin Key from file: " << relin_key_fname << endl;
+            }catch(std::exception const& e){
+                cout << "There was an error loading de RK from Server folder: " << e.what() << endl;
+            }
         }
 
 };

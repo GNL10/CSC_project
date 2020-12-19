@@ -8,13 +8,12 @@
 #include <fstream>
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
+#include <list>
+#include <vector>
 
 #include "seal/seal.h"
 
 #include "../config.h"
-
-
-
 
 using namespace seal;
 using namespace std;
