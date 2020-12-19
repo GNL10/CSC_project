@@ -8,6 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 add_executable(client Clients/client.cpp FHE.cpp)
 target_link_libraries(client SEAL::seal)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 
 add_executable(server Server/server.cpp)
 target_link_libraries(server SEAL::seal)

@@ -20,6 +20,9 @@ namespace fs = std::experimental::filesystem;
 #include <unordered_map>
 #include <functional>
 
+#include <pthread.h>
+#include <cstdlib>
+
 using namespace seal;
 using namespace std;
 

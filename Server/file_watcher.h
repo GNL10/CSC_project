@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FILE_WATCHER_H
+#define FILE_WATCHER_H
 
 #include "server.h"
 
@@ -64,3 +65,5 @@ class FileWatcher {
             return el != paths_.end();
         }
 };
+
+#endif

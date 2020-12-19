@@ -3,7 +3,7 @@
 
 #include "server.h"
 
-class ParseCmd{
+class ServerParseCmd{
     
     public:
         bool find_and_del_in_str (string &str, string str_to_find) {

@@ -3,22 +3,19 @@
 #include "table.h"
 #include "api.h"
 #include "file_watcher.h"
-
-#include "parse_cmd.h"
+#include "server_parse_cmd.h"
 
 int main(){
     SealWrapperServer sealServer(POLY, COEFF);
     Comparator comparator(sealServer._evaluator, sealServer._relin_key);
-    ParseCmd parser;
+    ServerParseCmd parser;
     Api api;
 
-    cout << "Files open: " << api.check_all_is_open() << endl;
-
-    // read_command(api.cmd_in, api.fhe_in);
-    // Bitch uuu are crazy!!! this is insane!
-    /////////////////////////////////////////////////////////////////////////////////
+    if(DEBUG) cout << "[DEBUG] Files open: " << api.check_all_is_open() << endl;
 
     FileWatcher fw{"./", chrono::milliseconds(2000)};
+
+    // TODO: dar check para ver se já exite info para tratar!!!
     
     fw.start([&sealServer, &parser, &api] (string path_to_watch, FileStatus status) -> void {
         // Process only regular files, all other file types are ignored
@@ -62,7 +59,6 @@ int main(){
                 std::cout << "Error! Unknown file status.\n";
         }
     });
-    /////////////////////////////////////////////////////////////////////////////////
 
     return 0;
 }
