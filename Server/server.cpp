@@ -1,6 +1,5 @@
 #include "seal_server_interface.h"
 #include "comparator.h"
-#include "table.h"
 #include "api.h"
 #include "file_watcher.h"
 #include "server_parse_cmd.h"
@@ -10,19 +9,20 @@ int main(){
     Comparator comparator(sealServer._evaluator, sealServer._relin_key);
     ServerParseCmd parser;
     Api api;
+    Table table;
 
     if(DEBUG) cout << "[DEBUG] Files open: " << api.check_all_is_open() << endl;
 
     FileWatcher fw{"./", chrono::milliseconds(2000)};
 
     // TODO: dar check para ver se já exite info para tratar!!!
-    
+
     fw.start([&sealServer, &parser, &api] (string path_to_watch, FileStatus status) -> void {
         // Process only regular files, all other file types are ignored
         if(!fs::is_regular_file(fs::path(path_to_watch)) && status != FileStatus::erased) {
             return ;
         }
-        
+
         switch(status) {
             case FileStatus::created:
                 std::cout << "File created: " << path_to_watch << '\n';
@@ -50,7 +50,7 @@ int main(){
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
                     parser.read_command(api.cmd_in, api.fhe_in);
                 }
-                
+
                 break;
             case FileStatus::erased:
                 std::cout << "File erased: " << path_to_watch << '\n';
@@ -62,6 +62,3 @@ int main(){
 
     return 0;
 }
-
-
-

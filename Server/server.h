@@ -19,6 +19,7 @@
 #include <unordered_map>
 #include <functional>
 
+#include "table.h"
 #include "../config.h"
 
 using namespace seal;

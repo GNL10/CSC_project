@@ -13,7 +13,7 @@ void *WatcherRoutine(void *notifications){
 
     struct watcher_thread_data *args;
     args = (struct watcher_thread_data *) notifications;
-    
+
     FileWatcher fw{"./", chrono::milliseconds(2000)};
 
     fw.start([] (string path_to_watch, FileStatus status) -> void {
@@ -21,11 +21,11 @@ void *WatcherRoutine(void *notifications){
         if(!fs::is_regular_file(fs::path(path_to_watch)) && status != FileStatus::erased) {
             return ;
         }
-        
+
         switch(status) {
             case FileStatus::created:
                 std::cout << "File created: " << path_to_watch << '\n';
-                
+
                 break;
             case FileStatus::modified:
                 std::cout << "File modified: " << path_to_watch << '\n';
@@ -39,13 +39,14 @@ void *WatcherRoutine(void *notifications){
                 std::cout << "Error! Unknown file status.\n";
         }
     });
+    return 0;
 }
 
 int main () {
     SealWrapperClient sealClient(POLY, COEFF);
     ClientParseCmd parser;
     Api api;
-    
+
     if(DEBUG) cout << "[DEBUG] Files open: " << api.check_all_is_open() << endl;
 
     pthread_t threads[NUM_THREADS];
@@ -63,7 +64,7 @@ int main () {
     catch(std::exception const& e){
         cout << "[ERROR] There was an error creating threads :: " << e.what() << endl;
     }
-    
+
     bool flag = true;
     //cout << "current file system " << std::filesystem::current_path() << endl;
     while (flag) {
@@ -95,4 +96,3 @@ int main () {
 
     pthread_exit(NULL);
 }
-

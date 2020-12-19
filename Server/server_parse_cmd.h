@@ -4,7 +4,7 @@
 #include "server.h"
 
 class ServerParseCmd{
-    
+
     public:
         bool find_and_del_in_str (string &str, string str_to_find) {
             size_t pos = 0;
@@ -98,7 +98,7 @@ class ServerParseCmd{
                 }
             }
         }
-    
+
         void read_command (ifstream &cmd_file_in, ifstream &fhe_file_in) {
             string line;
             size_t pos;
@@ -117,7 +117,7 @@ class ServerParseCmd{
                         line.erase(remove(line.begin(), line.end(), ')'), line.end());
                         line.erase(remove(line.begin(), line.end(), '('), line.end());
                         list<string> col_list = read_within_commas(line);
-                        // CALL FUNCTION HERE
+                        // CALL FUNCTION HER
                     }
                 }
                 // INSERT INTO tablename VALUES (value1, .., valueN)
@@ -201,6 +201,7 @@ class ServerParseCmd{
                     cout << "Command:" << line << " not recognized." << endl;
                 }
             }
+            cmd_file_in.clear(); // clear the EOF from ifstream, so the file updates can later be read
         }
 
 };
