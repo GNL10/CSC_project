@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef FILE_WATCHER_H
 #define FILE_WATCHER_H
 

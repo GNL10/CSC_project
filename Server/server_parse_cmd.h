@@ -1,11 +1,15 @@
+#pragma once
+
 #ifndef PARSE_CMD_H
 #define PARSE_CMD_H
 
 #include "server.h"
+#include "table.h"
 
 class ServerParseCmd{
 
     public:
+
         bool find_and_del_in_str (string &str, string str_to_find) {
             size_t pos = 0;
             //if (flag != 1 || flag != 0)
@@ -99,7 +103,7 @@ class ServerParseCmd{
             }
         }
 
-        void read_command (ifstream &cmd_file_in, ifstream &fhe_file_in) {
+        void read_command (list<Table>* db, ifstream &cmd_file_in, ifstream &fhe_file_in) {
             string line;
             size_t pos;
 
@@ -117,7 +121,9 @@ class ServerParseCmd{
                         line.erase(remove(line.begin(), line.end(), ')'), line.end());
                         line.erase(remove(line.begin(), line.end(), '('), line.end());
                         list<string> col_list = read_within_commas(line);
-                        // CALL FUNCTION HER
+
+                        // CALL FUNCTION HERE
+                        Table::insert_table_in_list(db, "grilo", tablename, col_list);
                     }
                 }
                 // INSERT INTO tablename VALUES (value1, .., valueN)

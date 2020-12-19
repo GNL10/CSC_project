@@ -18,8 +18,6 @@
 #include <thread>
 #include <unordered_map>
 #include <functional>
-
-#include "table.h"
 #include "../config.h"
 
 using namespace seal;
@@ -33,5 +31,6 @@ typedef struct _CondInfo{
     Ciphertext full_num;
     list <Ciphertext> bits_num;
 } CondInfo;
+
 
 #endif

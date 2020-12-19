@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef SEAL_SERVER_INTERFACE_H
 #define SEAL_SERVER_INTERFACE_H
 

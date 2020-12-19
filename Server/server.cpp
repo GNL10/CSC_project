@@ -3,13 +3,13 @@
 #include "api.h"
 #include "file_watcher.h"
 #include "server_parse_cmd.h"
+#include "table.h"
 
 int main(){
     SealWrapperServer sealServer(POLY, COEFF);
     Comparator comparator(sealServer._evaluator, sealServer._relin_key);
     ServerParseCmd parser;
     Api api;
-    Table table;
 
     if(DEBUG) cout << "[DEBUG] Files open: " << api.check_all_is_open() << endl;
 
@@ -34,7 +34,7 @@ int main(){
 
                 if(path_to_watch.compare("./" + string(cmd_out_fname)) == 0 ){
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    parser.read_command(api.cmd_in, api.fhe_in);
+                    parser.read_command(&db ,api.cmd_in, api.fhe_in);
                 }
 
                 break;
@@ -48,7 +48,7 @@ int main(){
 
                 if(path_to_watch.compare("./" + string(cmd_out_fname)) == 0 ){
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    parser.read_command(api.cmd_in, api.fhe_in);
+                    parser.read_command(&db ,api.cmd_in, api.fhe_in);
                 }
 
                 break;
