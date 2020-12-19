@@ -60,14 +60,17 @@ class Table {
                 return;
             }
             list<TableElement> row;
-
+            if(DEBUG) cout << "[DEBUG] Inserting into table." << endl;
+            
             for (list<string>::iterator it = arg_list.begin(); it != arg_list.end(); it++){
                 if (it->compare(int_placeholder) != 0 )
                     throw "ERROR: insert_into_table argument : placeholder does not match.";
                 TableElement aux;
                 aux.full_num = sealServer.load_ciphertext(fhe_to_server); // load full number
-                for(int x=0; x < NUM_MAX_BITS; x++)
+                
+                for(int x=0; x < NUM_MAX_BITS; x++){
                     aux.bits.push_back(sealServer.load_ciphertext(fhe_to_server));
+                }
                 row.push_back(aux);
             }
 
@@ -80,18 +83,38 @@ class Table {
                 // if no element was found
                 if(DEBUG) cout << "[DEBUG] Failed select line from : " << _tablename << endl;
                 return;
-            }            
+            }        
+
+            ofstream cmd_to_cli, fhe_to_cli;
+            cmd_to_cli.open("../client/client0/" + string(cmd_in_fname), ios::binary | ios_base::app);
+            fhe_to_cli.open("../client/client0/" + string(fhe_in_fname), ios::binary | ios_base::app);
+
+            int l = 0;
+            for (list<list<TableElement>>::iterator row = table->rows.begin(); row != table->rows.end(); row++, l++){
+                if(l == linenum){
+                    cmd_to_cli << "SELECT LINE ANSWER : ";
+                    for(list<TableElement>::iterator element = row->begin(); element != row->end(); element++){
+                        element->full_num.save(fhe_to_cli);
+                        cmd_to_cli << int_placeholder << ", ";
+                    }
+                    cmd_to_cli << endl;
+                }
+            }     
+            
+            
+            cmd_to_cli.close();
+            fhe_to_cli.close();
         }
 
         static void select_sum_with_conditions(list<Table>* db, string _tablename, string col_to_sum, list<CondInfo> &conds){
-
+            //gil
         }
 
         static void select_sum_all (list<Table>* db, string _tablename, string col_to_sum){
         }
 
         static void select_colnames_with_conditions (list<Table>* db, string _tablename, list<string> col_list, list<CondInfo> &conds){
-
+            //gil
         }
         
         static void select_colnames_all (list<Table>* db, string _tablename, list<string> col_list) {
@@ -99,7 +122,21 @@ class Table {
         }
 
         static void delete_line (list<Table>* db, string _tablename, int linenum) {
+            Table *table;
+            if(( table = Table::search_tablename(_tablename, db)) == NULL) {
+                if(DEBUG) cout << "[DEBUG] Failed select line from : " << _tablename << endl;
+                return;
+            }
 
+            int l = 0;
+             for (list<list<TableElement>>::iterator row = table->rows.begin(); row != table->rows.end(); row++, l++){
+                if(l == linenum){
+                    table->rows.erase(row);
+                    if(DEBUG) cout << "[DEBUG] DELETED ROW FROM : " << _tablename << endl;
+                    return;
+                }
+             }
+             if(DEBUG) cout << "[DEBUG] FAILED TO DELETE ROW FROM : " << _tablename << endl;
         }
 };
 

@@ -146,10 +146,12 @@ class ServerParseCmd{
                             linenum = stoi(line.substr(0, pos));
                             if (find_and_del_in_str(line, FROM)) { // extracting tablename
                                 tablename = line;
+                                cout << "calling select line " << endl;
                                 Table::select_line(db, tablename, linenum);
                             }
-
+                            cout << "2" << endl;
                         }
+                        cout << "1" << endl; 
                     }
                     // SELECT SUM(colname) FROM tablename WHERE col1name =|<|> value AND|OR col2name =|<|> value
                     // SELECT SUM(colname) FROM tablename WHERE col1name = _int_ OR col2name = value
