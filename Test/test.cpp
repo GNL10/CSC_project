@@ -1,6 +1,4 @@
-#include "comparator.h"
-#include "data_base.h"
-#include "test.h"
+#include "utils.h"
 
 int main(){
 
@@ -28,19 +26,71 @@ int main(){
     Evaluator evaluator(context);
     Decryptor decryptor(context, secret_key);
 
+    Comparator comparator(&evaluator, &relin_keys);
+    database.createTable("Steve", "MyTable", {"col1", "col2", "col3", "col4"});
 
-    DataBase database("db_test");
 
-    database.createTable("Steve", "MyTable", {"altura", "comprimento", "lol"});
+    Plaintext _0_plain(to_string(0));
+    Plaintext _1_plain(to_string(1));
 
-    list<string> col;
-    database.search_all_columns("MyTable", col);
+    Plaintext _3_plain(to_string(3));
 
-    for (auto el : col) {
-        cout << el << endl;
-    }
+    Ciphertext _0_encrypted;
+    Ciphertext _1_encrypted;
+
+    encryptor.encrypt(_0_plain, _0_encrypted);
+    encryptor.encrypt(_1_plain, _1_encrypted);
+
+    vector<Ciphertext> a = {_1_encrypted};
+    vector<Ciphertext> b = {_0_encrypted};
+
+    TableElement* _A = new TableElement();
+    Comparator::insert_bits(a, _A->elem_bits);
     
+    encryptor.encrypt(_3_plain, _A->elem_value);
+    
+    TableElement* _B = new TableElement();
+    Comparator::insert_bits(b, _B->elem_bits);
+    
+    TableElement* _C = new TableElement();
+    Comparator::insert_bits(a, _C->elem_bits);
+
+    TableElement* _D = new TableElement();
+    Comparator::insert_bits(b, _D->elem_bits);
+
+    database.insert_elem_in_column("MyTable", "col1", _A);
+    database.insert_elem_in_column("MyTable", "col1", _B);
+    database.insert_elem_in_column("MyTable", "col1", _C);
+    database.insert_elem_in_column("MyTable", "col1", _D);
+
+    for (auto el : _A->elem_bits){
+        Plaintext decrypted;
+        decryptor.decrypt(el, decrypted);
+        cout << decrypted.to_string() << endl;
+    }
+
+    Utils utils;
+
+    CondInfo condition;
+
+    condition.colname = "col1";
+    condition.op = 0;
+    condition.logical_op = -1;
+    Comparator::insert_bits(b, condition.bits_num);
+    
+    list<CondInfo> conds;
+    conds.push_back(condition);
+    
+
+    Plaintext cipher_result_decrypted;
+
+    decryptor.decrypt( utils.selected_sum_with_conditions(&comparator, "MyTable", "col1", conds) , cipher_result_decrypted);
+
+    cout << "Result: " << cipher_result_decrypted.to_string() << endl;
 }
+
+
+
 
 // Test Comparator
 /*

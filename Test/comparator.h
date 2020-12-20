@@ -7,9 +7,10 @@
 
 class Comparator{
     private:
-        Evaluator* _eval;
+    
         RelinKeys* _relin_keys;
     public:
+        Evaluator* _eval;
         Comparator(Evaluator* evaluator, RelinKeys* relin_keys){
             _eval = evaluator;
             _relin_keys = relin_keys;
@@ -82,6 +83,36 @@ class Comparator{
             return in;
         }
 
+        Ciphertext sum(Ciphertext a, Ciphertext b){
+            Ciphertext c;
+            _eval->add(a, b, c);
+            return c;
+        }
+
+        Ciphertext mult(Ciphertext a, Ciphertext b){
+            Ciphertext c;
+            _eval->multiply(a, b, c);
+            _eval->relinearize_inplace(c, *_relin_keys);
+            return c;
+        }
+
+        Ciphertext compose_mult(Ciphertext a, vector<Ciphertext> B){
+            Ciphertext res;
+            Ciphertext c;
+
+            for (vector<Ciphertext>::iterator bit = B.begin(); bit != B.end(); bit++){
+                _eval->multiply(a, *bit, c);
+                _eval->relinearize_inplace(c, *_relin_keys);
+                _eval->add_inplace(res, c);
+            }
+            
+            
+            return c;
+        }
+
+        static void insert_bits(vector<Ciphertext> From, vector<Ciphertext>& To){
+            for(auto elem : From) To.push_back(elem);
+        }
 };
 
 #endif

@@ -4,7 +4,7 @@
 #define PARSE_CMD_H
 
 #include "server.h"
-#include "table.h"
+#include "data_base.h"
 #include "api.h"
 
 class ServerParseCmd{
@@ -104,7 +104,7 @@ class ServerParseCmd{
             }
         }
 
-        void read_command (list<Table>* db, Api &api, int clinum, SealWrapperServer &sealServer, Comparator *comparator) {
+        void read_command (Api &api, int clinum, SealWrapperServer &sealServer, Comparator *comparator) {
             string line;
             size_t pos;
 
@@ -122,8 +122,7 @@ class ServerParseCmd{
                         line.erase(remove(line.begin(), line.end(), ')'), line.end());
                         line.erase(remove(line.begin(), line.end(), '('), line.end());
                         list<string> col_list = read_within_commas(line);
-
-                        Table::create_table(db, "defaultown", tablename, col_list);
+                        database.createTable("owner", tablename, col_list);
                     }
                 }
                 // INSERT INTO tablename VALUES (value1, .., valueN)
@@ -135,7 +134,6 @@ class ServerParseCmd{
                             line.erase(remove(line.begin(), line.end(), ')'), line.end());
                             line.erase(remove(line.begin(), line.end(), '('), line.end());
                             list<string> arg_list = read_within_commas(line);
-                            Table::insert_into_table(db, tablename, arg_list, api.fhe_to_server[clinum], api.cmd_to_client[clinum], sealServer);
                         }
                     }
                 }
@@ -147,7 +145,15 @@ class ServerParseCmd{
                             linenum = stoi(line.substr(0, pos));
                             if (find_and_del_in_str(line, FROM)) { // extracting tablename
                                 tablename = line;
-                                Table::select_line(db, tablename, linenum, api.cmd_to_client[clinum], api.fhe_to_client[clinum]);
+                                vector<TableElement*> res;
+                                database.get_all_elem_in_row(tablename, linenum, res);
+
+                                for(auto table_element : res){
+                                    // send Table Element to client
+                                    api.cmd_to_client[clinum] << int_placeholder << ",";
+                                    table_element->elem_value.save(api.fhe_to_client[clinum]);
+                                }
+                                api.cmd_to_client[clinum] << endl;
                             }
                         }
                     }
@@ -161,11 +167,10 @@ class ServerParseCmd{
                             if (find_and_del_in_str(line, WHERE)) { // there are conditions to read
                                 list<CondInfo> conditions;
                                 parse_conditions(line, conditions);
-                                Table::select_sum_with_conditions(db, comparator, tablename, sum, conditions);
                             }
                             else { // there are no condit
                                 // sum every line
-                                Table::select_sum_all (db, tablename, sum);
+                                
                             }
                         }
 
@@ -180,11 +185,9 @@ class ServerParseCmd{
                             if (find_and_del_in_str(line, WHERE)) { // there are conditions to read
                                 list<CondInfo> conditions;
                                 parse_conditions(line, conditions);
-                                Table::select_colnames_with_conditions(db, tablename, col_list, conditions);
                             }
                             else { // there are no condit
                                 // all lines
-                                Table::select_colnames_all(db, tablename, col_list);
                             }
                         }
                     }
@@ -195,7 +198,6 @@ class ServerParseCmd{
                         linenum = stoi(line.substr(0, pos));
                         if (find_and_del_in_str(line, FROM)) {
                             tablename = line;
-                            Table::delete_line(db, tablename, linenum, api.cmd_to_client[clinum]);
                         }
                     }
                 }

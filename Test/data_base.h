@@ -4,6 +4,7 @@
 #define DATA_BASE_H
 
 #include "test.h"
+#include "comparator.h"
 
 typedef struct _TableElement{
     Ciphertext elem_value;
@@ -30,6 +31,7 @@ class DataBase{
     public:
         DB* db;
 
+        // tested
         DataBase(string db_name){
             // create static database
             static DB* _db = new DB();
@@ -39,10 +41,11 @@ class DataBase{
             db->db_name = db_name;
 
             // log
-            cout << "[DEBUG] Created DataBase :: DB Name -> " << db->db_name << endl;
+            cout << "[STATUS] Creating DataBase with DB Name: { " << db->db_name << " }\n" << endl;
         }
 
-        bool createNewDataBase(string db_new_name){
+        // tested
+        void createNewDataBase(string db_new_name){
             delete(db);
 
             static DB* _db = new DB();
@@ -55,16 +58,28 @@ class DataBase{
             cout << "[DEBUG] Created New DataBase :: DB Name -> " << db->db_name << endl;
         }
 
-        Table* searchTable(string tablename){
+        // tested
+        bool searchTable(string tablename){
+            for (auto& table : db->db_tables) {
+                if(table->table_name.compare(tablename) == 0){
+                    return 1;
+                }
+            }
+            return 0;
+        }
+
+        // tested
+        Table* getTable(string tablename){
             for (auto& table : db->db_tables) {
                 if(table->table_name.compare(tablename) == 0) return table;
             }
-            return NULL;
+            return nullptr;
         }
 
+        // tested
         bool createTable(string creator, string tablename, list<string> col_names){
             // search to see if a Table with name tablename already exists
-            if(searchTable(tablename) != NULL) { cout << "[Error] Table name already registered. Try another" << endl; return 0;}
+            if(searchTable(tablename)) { cout << "[Error] Table name already registered. Try another" << endl; return 0;}
 
             static Table* _table = new Table();
             _table->table_name = tablename;
@@ -80,65 +95,117 @@ class DataBase{
             return 1;
         }
 
-        bool deleteTable(string tablename){
-            Table* _table;
-            if( (_table = searchTable(tablename)) == NULL) { cout << "[Error] Table does not exist. Try another" << endl; return 0;}
-
-            delete(_table);
-            return 1;
-        }
-
-        bool createColumns(string tablename, string col_name){
-            Table* _table;
-            if( (_table = searchTable(tablename)) == NULL) { cout << "[Error] Table does not exist. Try another" << endl; return 0;}
-
-            TableCol* _table_col = new TableCol();
-            _table_col->col_name = col_name;
-
-            _table->table_col.push_back(_table_col);
-
-            return 1;
-        }
-
+        // tested
         bool search_all_columns(string tablename, list<string>& res){
-            Table* _table;
+            Table* table = getTable(tablename);
+            if(!table) { cout << "[Error] Table does not exist. Try another" << endl; return 0;}
 
-            if( (_table = searchTable(tablename)) == NULL) { cout << "[Error] Table does not exist. Try another" << endl; return 0;}
-
-            for (auto& col : _table->table_col) {
+            for (auto col : table->table_col) {
                 res.push_back(col->col_name);
             }
             return 1;
         }
 
-        bool search_column(string tablename, string colname, TableCol* col_res){
-            Table* _table;
-            if( (_table = searchTable(tablename)) == NULL) { cout << "[Error] Table does not exist. Try another" << endl; return 0;}
+        // tested
+        bool createColumn(string tablename, string col_name){
+            Table* table = getTable(tablename);
+            if(!table) { cout << "[Error] Table does not exist. Try another" << endl; return 0;}
 
-            for (auto col : _table->table_col) {
-                if(col->col_name.compare(colname)) col_res = col;
+            list<string> found_col;
+            search_all_columns(tablename, found_col);
+            bool found = (std::find(found_col.begin(), found_col.end(), col_name) != found_col.end());
+            
+            if(!found){
+                cout << "[Error] Column already exists" << endl;
+                return 0;
             }
+
+            TableCol* table_col = new TableCol();
+            table_col->col_name = col_name;
+
+            table->table_col.push_back(table_col);
             return 1;
         }
 
-        bool insert_table_elem(string tablename,  string colname, TableElement* content){
-            TableCol* table_column;
-            if(!search_column(tablename, colname, table_column)) { cout << "[Error] Column does not exist in this table. Try another" << endl; return 0;}
+        // tested
+        TableCol* getColumn(string tablename, string colname){
+            Table* _table = getTable(tablename);
+            if(!_table) { cout << "[Error] Table does not exist. Try another" << endl; return 0;}
 
+            for (auto& col : _table->table_col) {
+                if(col->col_name.compare(colname) == 0) return col;
+            }
+
+            return nullptr;
+        }
+
+        // tested
+        bool insert_elem_in_column(string tablename,  string colname, TableElement* content){
+            TableCol* table_column =  getColumn(tablename, colname);
+            if(!table_column) { cout << "[Error] Column does not exist in this table. Try another" << endl; return 0;}
+            
             table_column->col_elem.push_back(content);
             return 1;
         }
 
-        bool search_all_columns_elem(string tablename,  string colname, vector<TableElement*> elem_res){
-            TableCol* table_column;
-            if(!search_column(tablename, colname, table_column)) { cout << "[Error] Column does not exist in this table. Try another" << endl; return NULL;}
-
+        // tested
+        bool get_all_elem_in_column(string tablename,  string colname, vector<TableElement*> &res){
+            TableCol* table_column =  getColumn(tablename, colname);
+            if(!table_column) { cout << "[Error] Column does not exist in this table. Try another" << endl; return 0;}
+            
+            cout << "\n[STATUS] :: Searching in column: { " << table_column->col_name << " } :: Table: { " << tablename << " }\n" << endl;
+            
             for (auto& elem : table_column->col_elem) {
-                elem_res.push_back(elem);
+                res.push_back(elem);
             }
+
             return 1;
         }
 
+        // tested
+        bool get_all_elem_in_row(string tablename,  int row, vector<TableElement*> &res){
+            Table* _table = getTable(tablename);
+            if(!_table) { cout << "[Error] Table does not exist. Try another" << endl; return 0;}
+
+            cout << "\n[STATUS] :: Searching in row: { " << row << " } :: Table: { " << _table->table_name << " }\n" << endl;
+            
+            for (auto _col = _table->table_col.begin(); _col != _table->table_col.end(); ++_col) {
+                for (auto _row = (*_col)->col_elem.begin(); _row != (*_col)->col_elem.end(); ++_row) {
+                    int row_number = std::distance((*_col)->col_elem.begin(), _row);
+                    if(row_number == row) {
+                        res.push_back( (*_row) );
+                        break;
+                    }
+                }
+            }
+
+            return 1;
+        }
+
+        // tested
+        TableElement* get_elem(string tablename, int row, string col){
+            Table* _table = getTable(tablename);
+            if(!_table) { cout << "[Error] Table does not exist. Try another" << endl; return nullptr;}
+
+            cout << "\n[STATUS] :: Searching for element in position: (" << row << ", " << col << ") :: Table: {" << _table->table_name << " }\n" << endl;
+        
+            int l = 0;
+            for (auto _col : _table->table_col){
+                if(_col->col_name.compare( col ) == 0){
+                    for(auto _row : _col->col_elem){
+                        if(l == row){
+                            return _row;
+                        }
+                        l++;
+                    }
+                }
+            }
+
+            return nullptr;
+        }
+
 };
+
+DataBase database("db_test");
 
 #endif
