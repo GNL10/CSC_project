@@ -10,7 +10,7 @@ int main(){
     ServerParseCmd parser;
     Api api;
 
-    if(DEBUG) cout << "[DEBUG] Files open: " << api.check_all_is_open() << endl;
+    // if(DEBUG) cout << "[DEBUG] Files open: " << api.check_all_is_open() << endl;
 
     FileWatcher fw{"./", chrono::milliseconds(2000)};
 
@@ -19,7 +19,7 @@ int main(){
     fw.start([&sealServer, &parser, &api, &comparator] (string path_to_watch, FileStatus status) -> void {
         // Process only regular files, all other file types are ignored
         if(!fs::is_regular_file(fs::path(path_to_watch)) && status != FileStatus::erased) {
-            return ;
+            return;
         }
 
         switch(status) {
@@ -51,9 +51,10 @@ int main(){
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
                     // parser.read_command(&db, sealServer, &comparator, api.cmd_in, api.fhe_in);
                     int clinum = stoi(path_to_watch.substr(sizeof("./client") -1,1));
-
+                }
             default:
                 std::cout << "Error! Unknown file status.\n";
+        }
     });
 
     return 0;

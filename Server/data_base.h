@@ -136,8 +136,44 @@ class DataBase{
             for (auto& elem : table_column->col_elem) {
                 elem_res.push_back(elem);
             }
+
             return 1;
         }
+
+        bool search_all_row_elem(string tablename,  int row, vector<TableElement*> elem_res){
+            Table* _table;
+            if( (_table = searchTable(tablename)) == NULL) { cout << "[Error] Table does not exist. Try another" << endl; return 0;}
+
+            int _l = 0;
+
+            for (auto it = _table->table_col.begin(); it != _table->table_col.end(); ++it) {
+                int index = std::distance(_table->table_col.begin(), it);
+            }
+
+            for (auto col : _table->table_col) {
+                
+            }
+
+        }
+/*
+        TableElement* get_elem(string tablename, int row, int col){
+            Table* _table;
+            if( (_table = searchTable(tablename)) == NULL) { cout << "[Error] Table does not exist. Try another" << endl; return 0;}
+
+            for (auto _col = _table->table_col.begin(); _col != _table->table_col.end(); _col++) {
+                int col_index = std::distance(_table->table_col.begin(), _col);
+                if(col_index = col){
+                    for (auto _row = (*_col)->col_elem.begin(); _row != (*_col)->col_elem.end(); _row++) {
+                        int row_index = std::distance((*_col)->col_elem.begin(), _row);
+                        if(row_index = row){
+                            return (*_row);
+                        }
+                    }
+                }
+            }
+
+        }
+        */
 
 };
 
