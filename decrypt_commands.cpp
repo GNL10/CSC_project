@@ -13,6 +13,7 @@ single processing data block */
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 
+
 std::string RsaPriDecrypt(const std::string &cipher_text, const std::string &pri_key)
 {
 	std::string decrypt_text;
@@ -57,26 +58,33 @@ std::string RsaPriDecrypt(const std::string &cipher_text, const std::string &pri
 
 int main()
 {
-	// original plaintext  
-	std::string src_text = "test begin\n this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! this is an rsa test example!!! \ntest end";
-	//src_text = "rsa test";
- 
-	std::string decrypt_text;
-	std::string pri_key;
+	//std::string decrypt_text;
+	//std::string pri_key;
 
 	// Generate key pair - we already have created a pair
-    // std::string pub_key;
+    std::string pub_key;
 	std::string pri_key;
-	/* OpensslTool::GenerateRSAKey(pub_key, pri_key);
-	printf("public key:\n");
-	printf("%s\n", pub_key.c_str());
-	printf("private key:\n");
-	printf("%s\n", pri_key.c_str()); */
+	OpensslTool::GenerateRSAKey(pub_key, pri_key);
+	std::ofstream pub_key_file, pri_key_file;
+	OpenSSL::
+	pub_key_file.open("pub_key.pem");
+	pub_key_file << pub_key;
+	pub_key_file.close();
+
+	pri_key_file.open("pri_key.pem");
+	pri_key_file << pri_key;
+	pri_key_file.close();
+	
  
+	/*
+	//std::string pub_key;
+	//std::ifstream pub_key;
+	pub_key.open("oi");
+	//pub_key << 
     // Private key decryption
-	decrypt_text = OpensslTool::RsaPriDecrypt(encrypt_text, pri_key);
+	decrypt_text = OpensslTool::RsaPriDecrypt(encrypt_text, pub_key);
 	printf("decrypt: len=%d\n", decrypt_text.length());
 	printf("decrypt: %s\n", decrypt_text.c_str());
- 
+	*/
     return 0;
 }
