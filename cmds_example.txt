@@ -1,7 +1,7 @@
 CREATE TABLE table_example (col1, col2, col3)
 CREATE TABLE table_example (col1 )
 INSERT INTO table_example VALUES (4, 1, 5)
-DELETE 11 FROM tablename
-SELECT LINE 12 FROM tablename
-SELECT SUM(colname) FROM tablename WHERE col1name = _int_ OR col2name > _int_
-SELECT col1name, col2name , colNname FROM tablename WHERE col1name >value1 AND col2name > value2
+DELETE 11 FROM table_example
+SELECT LINE 12 FROM table_example
+SELECT SUM(colname) FROM table_example WHERE col1name = _int_ OR col2name > _int_
+SELECT col1name, col2name , colNname FROM table_example WHERE col1name >value1 AND col2name > value2

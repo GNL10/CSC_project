@@ -11,15 +11,13 @@ int main(){
     ServerParseCmd parser;
     Api api;
 
-
-
     if(DEBUG) cout << "[DEBUG] Files open: " << api.check_all_is_open() << endl;
 
     FileWatcher fw{"./", chrono::milliseconds(2000)};
 
     // TODO: dar check para ver se já exite info para tratar!!!
 
-    fw.start([&sealServer, &parser, &api] (string path_to_watch, FileStatus status) -> void {
+    fw.start([&sealServer, &parser, &api, &comparator] (string path_to_watch, FileStatus status) -> void {
         // Process only regular files, all other file types are ignored
         if(!fs::is_regular_file(fs::path(path_to_watch)) && status != FileStatus::erased) {
             return ;
@@ -33,12 +31,13 @@ int main(){
                     if(DEBUG) std::cout << "::RK::" << '\n';
                     sealServer.load_RK_from_file(RK_fname);
                 }
-                /*
-                if(path_to_watch.compare("./" + string(cmd_out_fname)) == 0 ){
+                
+                if(path_to_watch.find(string(cmd_out_fname)) != string::npos){
+                    int clinum = stoi(path_to_watch.substr(sizeof("./client") -1,1));
                     std::cout << "File created: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    parser.read_command(&db ,api.cmd_in, api.fhe_in, sealServer);
-                }*/
+                    parser.read_command(&db, api, clinum, sealServer, &comparator);
+                }
 
                 break;
             case FileStatus::modified:
@@ -52,7 +51,7 @@ int main(){
                     std::cout << "File modified: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
                     int clinum = stoi(path_to_watch.substr(sizeof("./client") -1,1));
-                    parser.read_command(&db , api, clinum, sealServer);
+                    parser.read_command(&db , api, clinum, sealServer, &comparator);
                 }
 
                 break;

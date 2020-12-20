@@ -67,7 +67,6 @@ class SealWrapperServer {
                 cout << "There was an error loading de RK from Server folder: " << e.what() << endl;
             }
         }
-
 };
 
 #endif

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef SERVER_H
-#define SERVER_H
+#ifndef TEST_H
+#define TEST_H
 
 #include "seal/seal.h"
 #include <iostream>
@@ -13,17 +13,12 @@
 #include <math.h>
 #include <fstream>
 
-#include <experimental/filesystem>
-#include <chrono>
-#include <thread>
-#include <unordered_map>
-#include <functional>
-#include "../config.h"
-
 using namespace seal;
 using namespace std;
 
-namespace fs = std::experimental::filesystem;
+#define DEBUG 1;
+
+// DATA BASE STRUCTS
 
 typedef struct _CondInfo{
     string colname;
@@ -32,6 +27,5 @@ typedef struct _CondInfo{
     Ciphertext full_num;
     vector <Ciphertext> bits_num;
 } CondInfo;
-
 
 #endif
