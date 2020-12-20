@@ -148,7 +148,6 @@ class ServerParseCmd{
                                 tablename = line;
                                 Table::select_line(db, tablename, linenum);
                             }
-
                         }
                     }
                     // SELECT SUM(colname) FROM tablename WHERE col1name =|<|> value AND|OR col2name =|<|> value

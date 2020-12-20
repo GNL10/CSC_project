@@ -86,6 +86,7 @@ class Table {
     
         // SELECT SUM(colname) FROM table_example WHERE col1name = _int_ OR col2name > _int_
         static void select_sum_with_conditions(list<Table>* db, Comparator* comp, string _tablename, string col_to_sum, list<CondInfo> &conds){
+            /*
             string res = "";
             Table *table;
 
@@ -138,13 +139,14 @@ class Table {
                 // comp->compare()
 
             }
-
+*/
         }
+        
         // SELECT SUM(colname) FROM tablename WHERE col1name =|<|> value AND|OR col2name =|<|> value
         static void select_sum_all (list<Table>* db, string _tablename, string col_to_sum){
 
             // see if _tablename exist in the db
-int op; // -1 for <    0 for =    1 for >
+        // -1 for <    0 for =    1 for >
             // make 2 dimension vertical iteration, one in the col col1name and
             // another in the col colname, for each index do:
             // auto comp_res = comp->compareNBits(col1name_element->bits, value->bits_num);

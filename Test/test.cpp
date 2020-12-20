@@ -1,4 +1,5 @@
 #include "comparator.h"
+#include "data_base.h"
 #include "test.h"
 
 int main(){
@@ -26,6 +27,23 @@ int main(){
 	Encryptor encryptor(context, public_key);
     Evaluator evaluator(context);
     Decryptor decryptor(context, secret_key);
+
+
+    DataBase database("db_test");
+
+    database.createTable("Steve", "MyTable", {"altura", "comprimento", "lol"});
+
+    list<string> col;
+    database.search_all_columns("MyTable", col);
+
+    for (auto el : col) {
+        cout << el << endl;
+    }
+    
+}
+
+// Test Comparator
+/*
 
     Comparator comparator(&evaluator, &relin_keys);
 
@@ -56,5 +74,6 @@ int main(){
     cout << "A > B: " << grater_decrypted.to_string() <<\
             " A = B: " << equal_decrypted.to_string() <<\
             " A < B: " << smaller_decrypted.to_string() << endl;
-    
-}
+*/
+
+

@@ -1,0 +1,53 @@
+
+
+// Admin -> public (client) && private (client)
+    // key
+    // crt
+
+// Client -> csr
+    // pem
+    // crt
+            // pem(client-private) + command -> sign command
+            // pem(server-public) + command -> encrypted command
+
+// Server -> csr
+    // pem
+    // crt
+            // encrypted command + pem(server-private) -> command
+            // 
+
+
+////////////////////////////////////////////////////////////////////////
+
+
+// Admin (CA) -> 
+        // private.key
+        // admin_ca.crt [self sign]
+        
+    // generate signed cert for each men+mber of the secure group
+        -> merge and make analysis (client.csr + admin_private.key + admin_ca.crt) -> signed client.crt
+        -> merge and make analysis (server.csr + admin_private.key + admin_ca.crt) -> signed server.crt
+
+// Client   
+    // key creation and config pipeline
+            -> create (public_key.pem + private_key.pem + client.csr)
+            -> send to admin (client.csr)
+            -> receive from admin (signed client.crt)
+    // keys
+        -> public_key.pem
+        -> private_key.pem
+        -> client.crt
+
+    // encrypt pipeline
+        -> merge (client.crt + content) -> send signed content to admin
+
+// Server
+    // key creation and config pipeline
+            -> create (public_key.pem + private_key.pem + Server.csr)
+            -> send to admin (Server.csr)
+            -> receive from admin (signed Server.crt)
+        // public_key.pem
+        // private_key.pem
+        // Server.crt
+
+    // 

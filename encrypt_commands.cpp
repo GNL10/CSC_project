@@ -14,7 +14,7 @@ std::string RsaPubEncrypt(const std::string &clear_text, const std::string &pub_
 
 	// use 'PEM_read_bio_RSA_PUBKEY' to be in agreement with the generated key format
 	rsa = PEM_read_bio_RSA_PUBKEY(keybio, &rsa, NULL, NULL);
- 
+	
 	// get the maximum length of the data block that RSA can process at a time
 	int key_len = RSA_size(rsa);
 	int block_len = key_len-11; // since the filling method is RSA_PKCS1_PADDING, we need to subtract 11 from the key_len
