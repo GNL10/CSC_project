@@ -3,7 +3,6 @@
 #include "api.h"
 #include "file_watcher.h"
 #include "server_parse_cmd.h"
-#include "table.h"
 
 int main(){
     SealWrapperServer sealServer(POLY, COEFF);
@@ -35,7 +34,7 @@ int main(){
                 if(path_to_watch.compare("./" + string(cmd_out_fname)) == 0 ){
                     std::cout << "File created: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    parser.read_command(&db, sealServer, &comparator, api.cmd_in, api.fhe_in);
+                    // parser.read_command(&db, sealServer, &comparator, api.cmd_in, api.fhe_in);
                 }
 
                 break;
@@ -50,7 +49,7 @@ int main(){
                 if(path_to_watch.compare("./" + string(cmd_out_fname)) == 0 ){
                     std::cout << "File modified: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    parser.read_command(&db, sealServer, &comparator, api.cmd_in, api.fhe_in);
+                    // parser.read_command(&db, sealServer, &comparator, api.cmd_in, api.fhe_in);
                 }
 
                 break;
