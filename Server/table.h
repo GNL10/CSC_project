@@ -60,7 +60,7 @@ class Table {
                 cmd_to_cli << "INSERT INTO TABLE: Table does not exist!" << endl;
                 if(DEBUG) cout << "[DEBUG] Failed Insert into table : " << _tablename << endl;
                 return;
-            }                                                              
+            }
             list<TableElement> row;
             if(DEBUG) cout << "[DEBUG] Inserting into table." << endl;
             
@@ -72,7 +72,7 @@ class Table {
                 
                 for(int x=0; x < NUM_MAX_BITS; x++){
                     aux.bits.push_back(sealServer.load_ciphertext(fhe_to_server));
-                } operator delete[]
+                }
                 row.push_back(aux);
             }
 
@@ -218,5 +218,7 @@ class Table {
              if(DEBUG) cout << "[DEBUG] FAILED TO DELETE ROW FROM : " << _tablename << endl;
         }
 };
+
 list<Table> db;
+
 #endif

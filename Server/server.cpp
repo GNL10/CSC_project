@@ -3,6 +3,7 @@
 #include "api.h"
 #include "file_watcher.h"
 #include "server_parse_cmd.h"
+#include "table.h"
 
 int main(){
     SealWrapperServer sealServer(POLY, COEFF);
@@ -35,7 +36,7 @@ int main(){
                     int clinum = stoi(path_to_watch.substr(sizeof("./client") -1,1));
                     std::cout << "File created: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    parser.read_command(api, clinum, sealServer, &comparator);
+                    parser.read_command(&db, api, clinum, sealServer, &comparator);
                 }
 
                 break;
@@ -50,7 +51,7 @@ int main(){
                     std::cout << "File modified: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
                     int clinum = stoi(path_to_watch.substr(sizeof("./client") -1,1));
-                    parser.read_command(api, clinum, sealServer, &comparator);
+                    parser.read_command(&db , api, clinum, sealServer, &comparator);
                 }
 
                 break;
