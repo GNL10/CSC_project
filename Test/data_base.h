@@ -118,6 +118,7 @@ class DataBase{
             for (auto col : _table->table_col) {
                 if(col->col_name.compare(colname)) col_res = col;
             }
+            return 1;
         }
 
         bool insert_table_elem(string tablename,  string colname, TableElement* content){
@@ -135,7 +136,6 @@ class DataBase{
             for (auto& elem : table_column->col_elem) {
                 elem_res.push_back(elem);
             }
-
             return 1;
         }
 

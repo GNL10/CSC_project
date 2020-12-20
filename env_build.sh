@@ -21,17 +21,16 @@ rm -r $main_folder
 
 #create and enter main folder
 mkdir $main_folder
+echo "Created : $main_folder"
 
 #create folders
 mkdir $main_folder/$admin
 mkdir $main_folder/$server
 mkdir $main_folder/$client
 
-cp build/bin/admin $main_folder/$admin
-cp Admin/admin.sh $main_folder/$admin
-
-cp build/bin/server $main_folder/$server
-
+echo "Created : $main_folder/$admin"
+echo "Created : $main_folder/$server"
+echo "Created : $main_folder/$client"
 
 for ((i=0 ; i <= CLI_NUM; i++))
 do
@@ -40,3 +39,7 @@ do
     echo "Created : $main_folder/$client/$client$i"
     cp build/bin/client $main_folder/$client/$client$i
 done
+
+cp build/bin/admin $main_folder/$admin
+cp Admin/admin.sh $main_folder/$admin
+cp build/bin/server $main_folder/$server

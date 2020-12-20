@@ -42,7 +42,7 @@ class DataBase{
             cout << "[DEBUG] Created DataBase :: DB Name -> " << db->db_name << endl;
         }
 
-        bool createNewDataBase(string db_new_name){
+        void createNewDataBase(string db_new_name){
             delete(db);
 
             static DB* _db = new DB();
@@ -118,6 +118,7 @@ class DataBase{
             for (auto col : _table->table_col) {
                 if(col->col_name.compare(colname)) col_res = col;
             }
+            return 1;
         }
 
         bool insert_table_elem(string tablename,  string colname, TableElement* content){
@@ -135,21 +136,7 @@ class DataBase{
             for (auto& elem : table_column->col_elem) {
                 elem_res.push_back(elem);
             }
-
             return 1;
-        }
-
-        bool search_all_row_elem(string tablename,  string row, vector<TableElement*> elem_res){
-            list<string> all_col;
-
-            search_all_columns(tablename, all_col);
-
-            for (auto col : all_col) {
-                
-            }
-
-            search_all_columns_elem(tablename, )
-
         }
 
 };

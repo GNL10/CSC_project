@@ -17,7 +17,7 @@ class Utils{
             return a;
         }
 
-        int move_file(const char *from, const char *to){
+        void move_file(const char *from, const char *to){
             const auto copyOptions = std::experimental::filesystem::copy_options::update_existing
                            | std::experimental::filesystem::copy_options::recursive;
             std::experimental::filesystem::copy(from, to, copyOptions);

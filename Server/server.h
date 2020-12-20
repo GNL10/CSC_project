@@ -33,4 +33,5 @@ typedef struct _CondInfo{
     vector <Ciphertext> bits_num;
 } CondInfo;
 
+
 #endif

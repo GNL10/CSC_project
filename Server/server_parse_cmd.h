@@ -4,7 +4,9 @@
 #define PARSE_CMD_H
 
 #include "server.h"
+#include "api.h"
 #include "data_base.h"
+
 class ServerParseCmd{
 
     public:
@@ -102,11 +104,11 @@ class ServerParseCmd{
             }
         }
 
-        void read_command (DataBase db, SealWrapperServer &sealServer, Comparator *comparator, ifstream &cmd_file_in, ifstream &fhe_file_in) {
+        void read_command (Api &api, int clinum, SealWrapperServer &sealServer, Comparator *comparator) {
             string line;
             size_t pos;
-
-            while ( getline (cmd_file_in,line)) { //run through all lines of file
+            
+            while ( getline (api.cmd_to_server[clinum],line)) { //run through all lines of file
                 if (DEBUG)
                     cout << "[DEBUG] Command read from file: " << line << endl;
 
@@ -121,7 +123,8 @@ class ServerParseCmd{
                         line.erase(remove(line.begin(), line.end(), '('), line.end());
                         list<string> col_list = read_within_commas(line);
 
-                        // Table::create_table(db, "grilo", tablename, col_list);
+                        //Table::create_table(db, "defaultown", tablename, col_list);
+                        database.createTable("client" + to_string(clinum), tablename, col_list);
                     }
                 }
                 // INSERT INTO tablename VALUES (value1, .., valueN)
@@ -133,11 +136,10 @@ class ServerParseCmd{
                             line.erase(remove(line.begin(), line.end(), ')'), line.end());
                             line.erase(remove(line.begin(), line.end(), '('), line.end());
                             list<string> arg_list = read_within_commas(line);
+
                             // Table::insert_into_table(db, tablename, arg_list, fhe_file_in, sealServer);
-                        }
-                    }
+                            //Table::insert_into_table(db, tablename, arg_list, api.fhe_to_server[clinum], api.cmd_to_client[clinum], sealServer);
                 }
-                // SELECT CONDITIONS
                 else if (find_and_del_in_str(line, SELECT)) {
                     // SELECT LINE linenum FROM tablename
                     if (find_and_del_in_str(line, LINE)) {
@@ -145,7 +147,7 @@ class ServerParseCmd{
                             linenum = stoi(line.substr(0, pos));
                             if (find_and_del_in_str(line, FROM)) { // extracting tablename
                                 tablename = line;
-                                // Table::select_line(db, tablename, linenum);
+                                //Table::select_line(db, tablename, linenum, api.cmd_to_client[clinum], api.fhe_to_client[clinum]);
                             }
                         }
                     }
@@ -162,12 +164,11 @@ class ServerParseCmd{
                                 // Table::select_sum_with_conditions(db, comparator, tablename, sum, conditions);
                             }
                             else { // there are no condit
-                                // sum every line
-                                // Table::select_sum_all (db, tablename, sum);
+                                //Table::select_sum_all (db, tablename, sum);
+
                             }
                         }
 
-                    }
                     // SELECT col1name, .., colNname FROM tablename WHERE col1name =|<|>value1 AND|OR col2name =|<|> value2
                     else{
                         // get columns
@@ -178,30 +179,34 @@ class ServerParseCmd{
                             if (find_and_del_in_str(line, WHERE)) { // there are conditions to read
                                 list<CondInfo> conditions;
                                 parse_conditions(line, conditions);
+
                                 // Table::select_colnames_with_conditions(db, tablename, col_list, conditions);
                             }
                             else { // there are no condit
                                 // all lines
                                 // Table::select_colnames_all(db, tablename, col_list);
-                            }
-                        }
-                    }
 
+                                //Table::select_colnames_with_conditions(db, tablename, col_list, conditions);
+                            }
+                            else { // there are no condit
+                                // all lines
+                                //Table::select_colnames_all(db, tablename, col_list);
                 }
                 else if (find_and_del_in_str(line, DELETE)) {
                     if ((pos = line.find(SPACE)) != std::string::npos) {
                         linenum = stoi(line.substr(0, pos));
                         if (find_and_del_in_str(line, FROM)) {
                             tablename = line;
-                            // Table::delete_line(db, tablename, linenum);
+                            //Table::delete_line(db, tablename, linenum, api.cmd_to_client[clinum]);
                         }
                     }
                 }
                 else {
+                    api.cmd_to_client[clinum] << "Command : " << line << " not recognized." << endl;
                     cout << "Command:" << line << " not recognized." << endl;
                 }
             }
-            cmd_file_in.clear(); // clear the EOF from ifstream, so the file updates can later be read
+            api.cmd_to_server[clinum].clear(); // clear the EOF from ifstream, so the file updates can later be read
         }
 
 };
