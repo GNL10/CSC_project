@@ -5,6 +5,7 @@
 
 #include "server.h"
 #include "table.h"
+#include "api.h"
 
 class ServerParseCmd{
 
@@ -103,11 +104,11 @@ class ServerParseCmd{
             }
         }
 
-        void read_command (list<Table>* db, ifstream &cmd_file_in, ifstream &fhe_file_in, SealWrapperServer &sealServer) {
+        void read_command (list<Table>* db, Api &api, int clinum, SealWrapperServer &sealServer) {
             string line;
             size_t pos;
 
-            while ( getline (cmd_file_in,line)) { //run through all lines of file
+            while ( getline (api.cmd_to_server[clinum],line)) { //run through all lines of file
                 if (DEBUG)
                     cout << "[DEBUG] Command read from file: " << line << endl;
 
@@ -122,7 +123,7 @@ class ServerParseCmd{
                         line.erase(remove(line.begin(), line.end(), '('), line.end());
                         list<string> col_list = read_within_commas(line);
 
-                        Table::create_table(db, "grilo", tablename, col_list);
+                        Table::create_table(db, "defaultown", tablename, col_list);
                     }
                 }
                 // INSERT INTO tablename VALUES (value1, .., valueN)
@@ -134,7 +135,7 @@ class ServerParseCmd{
                             line.erase(remove(line.begin(), line.end(), ')'), line.end());
                             line.erase(remove(line.begin(), line.end(), '('), line.end());
                             list<string> arg_list = read_within_commas(line);
-                            Table::insert_into_table(db, tablename, arg_list, fhe_file_in, sealServer);
+                            Table::insert_into_table(db, tablename, arg_list, api.fhe_to_server[clinum], api.cmd_to_client[clinum], sealServer);
                         }
                     }
                 }
@@ -146,12 +147,9 @@ class ServerParseCmd{
                             linenum = stoi(line.substr(0, pos));
                             if (find_and_del_in_str(line, FROM)) { // extracting tablename
                                 tablename = line;
-                                cout << "calling select line " << endl;
-                                Table::select_line(db, tablename, linenum);
+                                Table::select_line(db, tablename, linenum, api.cmd_to_client[clinum], api.fhe_to_client[clinum]);
                             }
-                            cout << "2" << endl;
                         }
-                        cout << "1" << endl; 
                     }
                     // SELECT SUM(colname) FROM tablename WHERE col1name =|<|> value AND|OR col2name =|<|> value
                     // SELECT SUM(colname) FROM tablename WHERE col1name = _int_ OR col2name = value
@@ -197,15 +195,16 @@ class ServerParseCmd{
                         linenum = stoi(line.substr(0, pos));
                         if (find_and_del_in_str(line, FROM)) {
                             tablename = line;
-                            Table::delete_line(db, tablename, linenum);
+                            Table::delete_line(db, tablename, linenum, api.cmd_to_client[clinum]);
                         }
                     }
                 }
                 else {
+                    api.cmd_to_client[clinum] << "Command : " << line << " not recognized." << endl;
                     cout << "Command:" << line << " not recognized." << endl;
                 }
             }
-            cmd_file_in.clear(); // clear the EOF from ifstream, so the file updates can later be read
+            api.cmd_to_server[clinum].clear(); // clear the EOF from ifstream, so the file updates can later be read
         }
 
 };

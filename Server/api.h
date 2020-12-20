@@ -7,27 +7,37 @@
 
 class Api{
     public:
-        ofstream fhe_out, cmd_out;
-        ifstream fhe_in, cmd_in;
+        ifstream fhe_to_server[CLI_NUM], cmd_to_server[CLI_NUM];
+        ofstream fhe_to_client[CLI_NUM], cmd_to_client[CLI_NUM];
 
         Api(){
-            fhe_in.open (fhe_out_fname, ios::binary | ofstream::app);
-            fhe_out.open (string(fhe_in_fname), ios::binary | ofstream::app);
-            
-            cmd_in.open(cmd_out_fname, ios::binary | ios_base::app);
-            cmd_out.open(string(cmd_in_fname), ios::binary | ios_base::app);
+
+            for(int i=0; i < CLI_NUM; i++){
+                fhe_to_server[i].open ("client" + to_string(i) + "_" + fhe_out_fname, ios::binary | ofstream::app);
+                cmd_to_server[i].open ("client" + to_string(i) + "_" + cmd_out_fname, ios::binary | ofstream::app);
+                fhe_to_client[i].open ("../client/client" + to_string(i) + "/" + fhe_in_fname, ios::binary | ofstream::app);
+                cmd_to_client[i].open ("../client/client" + to_string(i) + "/" + cmd_in_fname, ios::binary | ofstream::app);
+            }
         }
 
         ~Api(){
-            fhe_out.close();
-            cmd_out.close();
-
-            fhe_in.close();
-            cmd_in.close();
+            for(int i=0; i < CLI_NUM; i++){
+                fhe_to_server[i].close();
+                cmd_to_server[i].close();
+                fhe_to_client[i].close();
+                cmd_to_client[i].close();
+            }
         }
 
         bool check_all_is_open(){
-            return (fhe_out.is_open() && cmd_out.is_open() && fhe_in.is_open() && cmd_in.is_open());
+            bool all_open = true;
+            for(int i=0; i < CLI_NUM; i++){
+                all_open = all_open && fhe_to_server[i].is_open();
+                all_open = all_open && cmd_to_server[i].is_open();
+                all_open = all_open && fhe_to_client[i].is_open();
+                all_open = all_open && cmd_to_client[i].is_open();
+            }
+            return all_open;
         }
 
 };

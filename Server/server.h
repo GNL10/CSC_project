@@ -33,4 +33,5 @@ typedef struct _CondInfo{
     list <Ciphertext> bits_num;
 } CondInfo;
 
+
 #endif

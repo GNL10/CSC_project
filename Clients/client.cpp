@@ -93,6 +93,5 @@ int main () {
                 cout << "ERROR: Input value not valid!";
         }
     }
-
     pthread_exit(NULL);
 }

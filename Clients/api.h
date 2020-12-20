@@ -9,8 +9,11 @@ class Api{
         ifstream fhe_in, cmd_in;
 
         Api(){
-            fhe_out.open ("../../server/" + string(fhe_out_fname), ios::binary | ofstream::app);
-            cmd_out.open("../../server/" + string(cmd_out_fname), ios::binary | ios_base::app);
+            string cwd = fs::current_path();
+            string client_name = cwd.substr(cwd.find_last_of('/') + 1, cwd.size());
+
+            fhe_out.open ("../../server/" + client_name + "_" + string(fhe_out_fname), ios::binary | ofstream::app);
+            cmd_out.open ("../../server/" + client_name + "_" + string(cmd_out_fname), ios::binary | ios_base::app);
 
             fhe_in.open (fhe_in_fname, ios::binary | ofstream::app);
             cmd_in.open(cmd_in_fname, ios::binary | ios_base::app);

@@ -19,8 +19,8 @@ static const char *RK_fname = "relin_key.txt";
 static const char *fhe_out_fname  = "fhe_to_server.txt";
 static const char *fhe_in_fname  = "fhe_from_server.txt";
 
-static const char *cmd_out_fname = "cmds_to_server.txt"//"cmds_out_enc.txt";
-static const char *cmd_in_fname = "cmds_from_server.txt"//"cmds_in_enc.txt";
+static const char *cmd_out_fname = "cmds_to_server.txt";
+static const char *cmd_in_fname = "cmds_from_server.txt";
 
 static const char *int_placeholder = "_int_";
 

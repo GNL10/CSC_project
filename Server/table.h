@@ -52,10 +52,12 @@ class Table {
             if(DEBUG) cout << "[DEBUG] Failed insertion of table : " << _tablename << endl;
         }
 
-        static void insert_into_table(list<Table>* db, string _tablename, list <string>& arg_list, ifstream &fhe_to_server, SealWrapperServer &sealServer) {
+        static void insert_into_table(list<Table>* db, string _tablename, list <string>& arg_list, ifstream &fhe_to_server, 
+                                        ofstream &cmd_to_cli, SealWrapperServer &sealServer) {
             Table *table;
             if(( table = Table::search_tablename(_tablename, db)) == NULL) {
                 // if no element was found
+                cmd_to_cli << "INSERT INTO TABLE: Table does not exist!" << endl;
                 if(DEBUG) cout << "[DEBUG] Failed Insert into table : " << _tablename << endl;
                 return;
             }
@@ -75,19 +77,17 @@ class Table {
             }
 
             table->insert_row(row);
+            cmd_to_cli << "INSERT INTO TABLE: OK!" << endl;
         }
 
-        static void select_line(list<Table>* db, string _tablename, int linenum) {
+        static void select_line(list<Table>* db, string _tablename, int linenum, ofstream &cmd_to_cli, ofstream &fhe_to_cli) {
             Table *table;
             if(( table = Table::search_tablename(_tablename, db)) == NULL) {
                 // if no element was found
+                cmd_to_cli << "SELECT LINE : Table does not exist!" << endl;
                 if(DEBUG) cout << "[DEBUG] Failed select line from : " << _tablename << endl;
                 return;
             }        
-
-            ofstream cmd_to_cli, fhe_to_cli;
-            cmd_to_cli.open("../client/client0/" + string(cmd_in_fname), ios::binary | ios_base::app);
-            fhe_to_cli.open("../client/client0/" + string(fhe_in_fname), ios::binary | ios_base::app);
 
             int l = 0;
             for (list<list<TableElement>>::iterator row = table->rows.begin(); row != table->rows.end(); row++, l++){
@@ -98,12 +98,10 @@ class Table {
                         cmd_to_cli << int_placeholder << ", ";
                     }
                     cmd_to_cli << endl;
+                    return;
                 }
-            }     
-            
-            
-            cmd_to_cli.close();
-            fhe_to_cli.close();
+            }    
+            cmd_to_cli << "SELECT LINE : Line does not exist!" << endl; 
         }
 
         static void select_sum_with_conditions(list<Table>* db, string _tablename, string col_to_sum, list<CondInfo> &conds){
@@ -121,9 +119,10 @@ class Table {
 
         }
 
-        static void delete_line (list<Table>* db, string _tablename, int linenum) {
+        static void delete_line (list<Table>* db, string _tablename, int linenum, ofstream &cmd_to_cli) {
             Table *table;
             if(( table = Table::search_tablename(_tablename, db)) == NULL) {
+                cmd_to_cli << "DELETE LINE : Table does not exist!" << endl;
                 if(DEBUG) cout << "[DEBUG] Failed select line from : " << _tablename << endl;
                 return;
             }
@@ -133,9 +132,11 @@ class Table {
                 if(l == linenum){
                     table->rows.erase(row);
                     if(DEBUG) cout << "[DEBUG] DELETED ROW FROM : " << _tablename << endl;
+                    cmd_to_cli << "DELETE LINE : OK!" << endl;
                     return;
                 }
              }
+             cmd_to_cli << "DELETE LINE : Row does not exist!" << endl;
              if(DEBUG) cout << "[DEBUG] FAILED TO DELETE ROW FROM : " << _tablename << endl;
         }
 };

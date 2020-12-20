@@ -27,32 +27,32 @@ int main(){
 
         switch(status) {
             case FileStatus::created:
-
+                std::cout << "File created: " << path_to_watch << '\n';
                 if(path_to_watch.compare("./" + string(RK_fname)) == 0 ){
                     std::cout << "File created: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::RK::" << '\n';
                     sealServer.load_RK_from_file(RK_fname);
                 }
-
+                /*
                 if(path_to_watch.compare("./" + string(cmd_out_fname)) == 0 ){
                     std::cout << "File created: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
                     parser.read_command(&db ,api.cmd_in, api.fhe_in, sealServer);
-                }
+                }*/
 
                 break;
             case FileStatus::modified:
-
                 if(path_to_watch.compare("./" + string(RK_fname)) == 0 ){
                     std::cout << "File modified: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::RK::" << '\n';
                     sealServer.load_RK_from_file(RK_fname);
                 }
 
-                if(path_to_watch.compare("./" + string(cmd_out_fname)) == 0 ){
+                if(path_to_watch.find(string(cmd_out_fname)) != string::npos ){
                     std::cout << "File modified: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    parser.read_command(&db ,api.cmd_in, api.fhe_in, sealServer);
+                    int clinum = stoi(path_to_watch.substr(sizeof("./client") -1,1));
+                    parser.read_command(&db , api, clinum, sealServer);
                 }
 
                 break;
