@@ -3,6 +3,7 @@
 #include "api.h"
 #include "file_watcher.h"
 #include "server_parse_cmd.h"
+#include "table.h"
 
 int main(){
     SealWrapperServer sealServer(POLY, COEFF);
@@ -10,7 +11,7 @@ int main(){
     ServerParseCmd parser;
     Api api;
 
-    // if(DEBUG) cout << "[DEBUG] Files open: " << api.check_all_is_open() << endl;
+    if(DEBUG) cout << "[DEBUG] Files open: " << api.check_all_is_open() << endl;
 
     FileWatcher fw{"./", chrono::milliseconds(2000)};
 
@@ -19,7 +20,7 @@ int main(){
     fw.start([&sealServer, &parser, &api, &comparator] (string path_to_watch, FileStatus status) -> void {
         // Process only regular files, all other file types are ignored
         if(!fs::is_regular_file(fs::path(path_to_watch)) && status != FileStatus::erased) {
-            return;
+            return ;
         }
 
         switch(status) {
@@ -35,7 +36,7 @@ int main(){
                     int clinum = stoi(path_to_watch.substr(sizeof("./client") -1,1));
                     std::cout << "File created: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    parser.read_command(api, clinum, sealServer, &comparator);
+                    parser.read_command(&db, api, clinum, sealServer, &comparator);
                 }
 
                 break;
@@ -49,9 +50,14 @@ int main(){
                 if(path_to_watch.find(string(cmd_out_fname)) != string::npos ){
                     std::cout << "File modified: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    // parser.read_command(&db, sealServer, &comparator, api.cmd_in, api.fhe_in);
                     int clinum = stoi(path_to_watch.substr(sizeof("./client") -1,1));
+                    parser.read_command(&db , api, clinum, sealServer, &comparator);
                 }
+
+                break;
+            case FileStatus::erased:
+                std::cout << "File erased: " << path_to_watch << '\n';
+                break;
             default:
                 std::cout << "Error! Unknown file status.\n";
         }

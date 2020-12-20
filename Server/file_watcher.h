@@ -66,7 +66,6 @@ class FileWatcher {
             auto el = paths_.find(key);
             return el != paths_.end();
         }
-    
 };
 
 #endif
