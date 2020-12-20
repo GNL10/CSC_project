@@ -103,7 +103,7 @@ class ServerParseCmd{
             }
         }
 
-        void read_command (list<Table>* db, ifstream &cmd_file_in, ifstream &fhe_file_in, SealWrapperServer &sealServer) {
+        void read_command (list<Table>* db, SealWrapperServer &sealServer, Comparator *comparator, ifstream &cmd_file_in, ifstream &fhe_file_in) {
             string line;
             size_t pos;
 
@@ -161,7 +161,7 @@ class ServerParseCmd{
                             if (find_and_del_in_str(line, WHERE)) { // there are conditions to read
                                 list<CondInfo> conditions;
                                 parse_conditions(line, conditions);
-                                Table::select_sum_with_conditions(db, tablename, sum, conditions);
+                                Table::select_sum_with_conditions(db, comparator, tablename, sum, conditions);
                             }
                             else { // there are no condit
                                 // sum every line

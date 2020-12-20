@@ -3,7 +3,7 @@
 #ifndef COMPARATOR_H
 #define COMPARATOR_H
 
-#include "server.h"
+#include "test.h"
 
 class Comparator{
     private:
@@ -82,32 +82,6 @@ class Comparator{
             return in;
         }
 
-        Ciphertext sum(Ciphertext a, Ciphertext b){
-            Ciphertext c;
-            _eval->add(a, b, c);
-            return c;
-        }
-
-        Ciphertext mult(Ciphertext a, Ciphertext b){
-            Ciphertext c;
-            _eval->multiply(a, b, c);
-            _eval->relinearize_inplace(c, *_relin_keys);
-            return c;
-        }
-
-        Ciphertext compose_mult(Ciphertext a, vector<Ciphertext> B){
-            Ciphertext res;
-            Ciphertext c;
-
-            for (vector<Ciphertext>::iterator bit = B.begin(); bit != B.end(); bit++){
-                _eval->multiply(a, *bit, c);
-                _eval->relinearize_inplace(c, *_relin_keys);
-                _eval->add_inplace(res, c);
-            }
-            
-            
-            return c;
-        }
 };
 
 #endif

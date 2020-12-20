@@ -11,15 +11,13 @@ int main(){
     ServerParseCmd parser;
     Api api;
 
-
-
     if(DEBUG) cout << "[DEBUG] Files open: " << api.check_all_is_open() << endl;
 
     FileWatcher fw{"./", chrono::milliseconds(2000)};
 
     // TODO: dar check para ver se já exite info para tratar!!!
 
-    fw.start([&sealServer, &parser, &api] (string path_to_watch, FileStatus status) -> void {
+    fw.start([&sealServer, &parser, &api, &comparator] (string path_to_watch, FileStatus status) -> void {
         // Process only regular files, all other file types are ignored
         if(!fs::is_regular_file(fs::path(path_to_watch)) && status != FileStatus::erased) {
             return ;
@@ -37,7 +35,7 @@ int main(){
                 if(path_to_watch.compare("./" + string(cmd_out_fname)) == 0 ){
                     std::cout << "File created: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    parser.read_command(&db ,api.cmd_in, api.fhe_in, sealServer);
+                    parser.read_command(&db, sealServer, &comparator, api.cmd_in, api.fhe_in);
                 }
 
                 break;
@@ -52,7 +50,7 @@ int main(){
                 if(path_to_watch.compare("./" + string(cmd_out_fname)) == 0 ){
                     std::cout << "File modified: " << path_to_watch << '\n';
                     if(DEBUG) std::cout << "::CMD IN::" << '\n';
-                    parser.read_command(&db ,api.cmd_in, api.fhe_in, sealServer);
+                    parser.read_command(&db, sealServer, &comparator, api.cmd_in, api.fhe_in);
                 }
 
                 break;

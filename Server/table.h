@@ -17,9 +17,9 @@ class Table {
         string tablename;
         list <string> col_names;
         int col_num;
-        list <list<TableElement>> rows; //change int to ciphertext struct
+        list<list<TableElement>> rows; //change int to ciphertext struct
 
-        Table (string _owner, string _tablename, list <string>& _col_names) {
+        Table (string _owner, string _tablename, list <string> &_col_names) {
             owner = _owner;
             tablename = _tablename;
             col_names = list(_col_names);
@@ -46,13 +46,14 @@ class Table {
             if(Table::search_tablename(_tablename, db) == NULL){ // no element was found
                 Table t(_owner, _tablename, _col_names);
                 db->push_back(t);
-                if(DEBUG) cout << "[DEBUG] Inserted successfully table : " << _tablename << endl;
+                if(DEBUG) cout << "[DEBUG] Table successfully created: " << _tablename << endl;
                 return;
             }
-            if(DEBUG) cout << "[DEBUG] Failed insertion of table : " << _tablename << endl;
+            if(DEBUG) cout << "[DEBUG] Failed creating table: " << _tablename << endl;
         }
 
-        static void insert_into_table(list<Table>* db, string _tablename, list <string>& arg_list, ifstream &fhe_to_server, SealWrapperServer &sealServer) {
+        static void insert_into_table(list<Table>* db, string _tablename, \
+                    list <string>& arg_list, ifstream &fhe_to_server, SealWrapperServer &sealServer) {
             Table *table;
             if(( table = Table::search_tablename(_tablename, db)) == NULL) {
                 // if no element was found
@@ -82,15 +83,92 @@ class Table {
                 return;
             }            
         }
+    
+        // SELECT SUM(colname) FROM table_example WHERE col1name = _int_ OR col2name > _int_
+        static void select_sum_with_conditions(list<Table>* db, Comparator* comp, string _tablename, string col_to_sum, list<CondInfo> &conds){
+            string res = "";
+            Table *table;
 
-        static void select_sum_with_conditions(list<Table>* db, string _tablename, string col_to_sum, list<CondInfo> &conds){
+            Ciphertext result;
+
+            if(( table = Table::search_tablename(_tablename, db)) == NULL) {
+                // db no element was found
+                if(DEBUG) cout << "[DEBUG] select_sum_with_conditions() :: Failed to find Table :: " << _tablename << endl;
+                return;
+            }
+
+            for (list<CondInfo>::iterator cond = conds.begin(); cond != conds.end(); cond++){
+                // OR
+                if(cond->logical_op == -1){
+
+                    int _row = 0;
+                    int _col = 0;
+
+                    for (list<list>::iterator row = table->rows.begin(); row != table->rows.end(); row++){
+                        
+                        for (list<TableElement>::iterator element = row->begin() ; element != row->end(); element++){
+                            
+                            // iterate each value of the same col (vertical iteration) and for each
+                            // colname do:
+                            auto comp_res = comp->compareNBits(element->bits, cond->bits_num);
+                            auto mult_res = comp->mult( get<1>(comp_res), element->full_num );
+
+                        }
+                        
+                        cout << "row  :: " << _row <<endl;
+                        
+                        cout << "col  :: " << _col << endl;
+                        
+                        _col = _col + 1;
+                        
+                        result = comp->sum( result,   )
+                        _row = _row + 1;
+
+
+
+                    }
+
+                }
+
+                // AND
+                if(cond->logical_op == 1){
+                    
+                }
+
+                // comp->compare()
+
+            }
 
         }
-
+        // SELECT SUM(colname) FROM tablename WHERE col1name =|<|> value AND|OR col2name =|<|> value
         static void select_sum_all (list<Table>* db, string _tablename, string col_to_sum){
+
+            // see if _tablename exist in the db
+int op; // -1 for <    0 for =    1 for >
+            // make 2 dimension vertical iteration, one in the col col1name and
+            // another in the col colname, for each index do:
+            // auto comp_res = comp->compareNBits(col1name_element->bits, value->bits_num);
+            /* switch(cond->op){
+                case -1:
+                    l = 2;
+                    break;
+                case 0:
+                    l = 1;
+                    break;
+                case 1:
+                    l = 0;
+                    break;
+                default:    // error
+                    l = -3;
+                    break;
+            }
+            */
+            // auto mult_res = comp->mult( get<l>(comp_res), element->full_num );
+
         }
 
-        static void select_colnames_with_conditions (list<Table>* db, string _tablename, list<string> col_list, list<CondInfo> &conds){
+        static void select_colnames_with_conditions (list<Table>* db, string _tablename, \
+                                                    list<string> col_list, list<CondInfo> &conds){
 
         }
         
